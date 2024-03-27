@@ -46,27 +46,28 @@ On peut relever dans ce dataset plusieurs grands groupes de données :
 
 
 ## Plan d'analyse
-Analyse du succès des films 
+Ce dataset étant assez riche, nous pouvons élaborer un plan d’analyse selon plusieurs grands axes d’étude :
+## Analyse du succès des films** 
 Dans cette partie, on s’interrogera sur les facteurs qui pourraient ressortir lorsqu’un film a du succès. Pour cela, on peut se baser sur nos indicateurs de popularité et de note moyenne et les comparer avec d’autres features comme le genre du film, le réalisateur ou le budget pour ne citer qu’eux.
 
-Exemples de questions :
-Succès du film : 
+**Exemples de questions :**
+**Succès du film :** 
 Quels sont les réalisateurs(directeurs) les plus populaires en fonction du genre  (ou qui ont réalisé le plus de films) ?
 Quel genre de film génère le plus de revenus?
 Est-ce qu’il y a un lien entre le genre et la popularité ?
 
-Appréciation du film :
+**Appréciation du film :**
 Est-ce qu’il y a un lien entre le budget et la popularité (ou la note) ?
 Est-ce qu'il y a un lien entre la réalisation de plusieurs films du même genre et l'appréciation(note) du film ?
-Lien entre popularité et note du film ?
+Y-a-t-il entre popularité et note du film ?
 
-Liaison entre le succès et l'appréciation du film :
+**Liaison entre le succès et l'appréciation du film :**
 Est-ce qu'il y a un lien entre les acteurs et la popularité ou la note du film?
 
-Analyse des tendances temporelles
+##  Analyse des tendances temporelles
 Nous pourrons ici analyser plusieurs features en regard des dates de sortie du film. on pourra ou non constater des évolutions de genre, de réalisateurs ou encore de compagnies de production en fonction du temps afin de voir si de nouveaux schémas se dessinent. 
 
-Exemple de questions : 
+**Exemples de questions :**
 Quels sont les pays qui ont réalisé le plus de films en fonction des années?
 Est-ce qu’il y a une évolution de la popularité du film dans le temps ?
 Est-ce que le genre du film impacte sur l'année de réalisation?
@@ -76,11 +77,11 @@ Y-a-t-il une augmentation du nombre de films dans le temps ?
 Est-ce qu’il y a une évolution des genres de film produite par les maisons de production au fil des années?
 Est ce que la langue originale du film a une influence (note, popularité…) ?
 
-Recherche de film
+## Recherche de film
 
 Ici on pourrait analyser la façon avec laquelle on peut rechercher le titre d’un film ou un film. Pour cela, les features cast, keyword peuvent être utiles.
 
-Exemple de questions:
+**Exemples de questions :**
 Est ce qu’il y a des mots que l’on retrouve le plus dans le titre selon le genre du film ?
 Quels sont les mots-clés les plus fréquents en fonction du genre?
 
