@@ -24,7 +24,7 @@ Détail des données :
 | budget                  | `Int`    | Budget global pour réaliser le film        |
 | genres                  | `String` | Genres associés au film                   |
 | keywords                | `String` | Mots clés représentant le film             |
-| overview                | `String` | Description donnant une aperçue du film    |
+| overview                | `String` | Description donnant un aperçu du film    |
 | popularity              | `Float`  | Popularité du film (entre 0 et 876)        |
 | production_companies    | `String` | Liste des compagnies de productions        |
 | production_countries    | `String` | Liste des pays de production               |
