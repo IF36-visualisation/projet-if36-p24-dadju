@@ -48,42 +48,47 @@ On peut relever dans ce dataset plusieurs grands groupes de données :
 ## Plan d'analyse
 Ce dataset étant assez riche, nous pouvons élaborer un plan d’analyse selon plusieurs grands axes d’étude :
 
-## Analyse du succès des films
-Dans cette partie, on s’interrogera sur les facteurs qui pourraient ressortir lorsqu’un film a du succès. Pour cela, on peut se baser sur nos indicateurs de popularité et de note moyenne et les comparer avec d’autres features comme le genre du film, le réalisateur ou le budget pour ne citer qu’eux.
+### Analyse du succès des films
+Dans cette partie, on s’interrogera sur les facteurs qui pourraient ressortir lorsqu’un film a du succès. Pour cela, on peut se baser sur nos indicateurs de popularité et de note moyenne et les comparer avec d’autres features comme le genre du film, le réalisateur ou le budget pour ne citer qu’eux. Dans cette partie, il faudra veiller à bien mettre en regard la note du film avec le nombre de votants, afin de ne pas avoir d'analyse biaisée par un nombre de votants trop faible sur un film par exemple.
 
-**Exemples de questions :**
+***Attentes :*** On peut supposer que plus le réalisateur est connu ou que plus le budget est important, et plus le film sera populaire et obtiendra une bonne note. Nous pensons également que les films d'actions seront sans doute les films avec le plus de succès.
+
+***Exemples de questions :***
 
 **Succès du film :** 
-* Quels sont les réalisateurs(directeurs) les plus populaires en fonction du genre  (ou qui ont réalisé le plus de films) ?
+* Quels sont les réalisateurs les plus populaires en fonction du genre (ou en fonction du nombre de films réalisés) ?
 * Quel genre de film génère le plus de revenus?
 * Est-ce qu’il y a un lien entre le genre et la popularité ?
-
-**Appréciation du film :**
-* Est-ce qu’il y a un lien entre le budget et la popularité (ou la note) ?
-* Est-ce qu'il y a un lien entre la réalisation de plusieurs films du même genre et l'appréciation(note) du film ?
-* Y-a-t-il entre popularité et note du film ?
-
-**Liaison entre le succès et l'appréciation du film :**
 * Est-ce qu'il y a un lien entre les acteurs et la popularité ou la note du film?
+  
+**Appréciation du film :**
+* Est-ce qu’il y a un lien entre le budget et la note ?
+* Est-ce qu'il y a un lien entre la réalisation de plusieurs films du même genre et la note du film ?
+* Est ce que la langue originale du film a une influence ?
+* Y-a-t-il un lien entre popularité et note du film ?
 
-##  Analyse des tendances temporelles
-Nous pourrons ici analyser plusieurs features en regard des dates de sortie du film. on pourra ou non constater des évolutions de genre, de réalisateurs ou encore de compagnies de production en fonction du temps afin de voir si de nouveaux schémas se dessinent. 
+###  Analyse des tendances temporelles
+Nous pourrons ici analyser plusieurs features en regard des dates de sortie du film. on pourra ou non constater des évolutions de genre, de réalisateurs ou encore de compagnies de production en fonction du temps afin de voir si de nouveaux schémas se dessinent. Nos données vont de de 1916 à 2017, mais nous possédons un nombre de films supérieur à 100 qu'à partir de 1993, il faudra donc faire attention lors de l'analyse.
 
-**Exemples de questions :**
-* Quels sont les pays qui ont réalisé le plus de films en fonction des années?
-* Est-ce qu’il y a une évolution de la popularité du film dans le temps ?
-* Est-ce que le genre du film impacte sur l'année de réalisation?
+***Attentes :*** On peut supposer que les grosses compagnies de production perdurent au fil du temps et qu'au contraire, les petites compagnies laissent place à d'autres. On pourra aussi vérifier s'il existe des pays "à la mode" sur certaines années. On s'attend également à une évolution du budget des compagnies dans le temps.
+
+***Exemples de questions :***
+* Quels sont les pays qui ont réalisé le plus de films en fonction des années ?
+* Est-ce qu’il y a une évolution de la popularité des film dans le temps ?
+* Est-ce que l'année de réalisation impacte sur le genre du film ?
 * Est-ce que le budget a évolué au fil des années ?
-* Est-ce qu’il y a une évolution de la durée de film dans le temps ?
-* Y-a-t-il une augmentation du nombre de films dans le temps ? 
-* Est-ce qu’il y a une évolution des genres de film produite par les maisons de production au fil des années?
-* Est ce que la langue originale du film a une influence (note, popularité…) ?
+* Est-ce qu’il y a une évolution de la durée des films dans le temps ?
+* Est ce que les maisons de production ont varié le genre de leurs films au fil du temps ?
 
-## Recherche de film
-Ici on pourrait analyser la façon avec laquelle on peut rechercher le titre d’un film ou un film. Pour cela, les features cast, keyword peuvent être utiles.
+### Analyse des mots employés pour décrire le film
+Ici, on pourrait analyser les features telles que tagline, title, overview et keywords pour trouver des liens et faire ressortir des patterns. On pourra aussi évaluer si le choix de ces mots a une influence sur l'appréciation ou la notation du film. Le traitement de données textuelles peut être certaines fois délicat, et il faudra veiller à ce que les techniques de traitement soient appropriées et les biais identifiés.
 
-**Exemples de questions :**
-* Est ce qu’il y a des mots que l’on retrouve le plus dans le titre selon le genre du film ?
+***Attentes :*** On pense trouver des mots clés qui ressortent selon le genre du film. On peut aussi imaginer que selon la compagnie de production ou le réalisateur, des mots clés peuvent être repris dans les films qu'ils produisent, comme une marque de fabrique.
+
+***Exemples de questions :***
+* Est-ce qu’il y a des mots que l’on retrouve le plus dans le titre selon le genre du film ?
 * Quels sont les mots-clés les plus fréquents en fonction du genre?
+* Est-ce que certains mots clés ressortent dans les films de telle ou telle compagnie de production ou pour tel réalisateur ? Cela a-t-il un lien avec le pays de production ?
+* Est-ce que les mots clés utilisés ont une influence sur l'appréciation ou la note du film ?
 
 
