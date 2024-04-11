@@ -17,6 +17,8 @@ Le choix de travailler sur des données liées au monde du cinéma résulte de l
 * Nombre d’observations : 4803
 * Nombre de variables : 17
 * Source : https://www.kaggle.com/datasets/harshshinde8/movies-csv
+* Auteur : Harsh Shinde [🔗](https://www.linkedin.com/in/harshshinde/)
+
 
 Détail des données : 
 | Variable                | Type     | Description                                |
