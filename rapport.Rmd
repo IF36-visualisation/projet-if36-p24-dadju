@@ -534,36 +534,47 @@ library(ggplot2)
 library(dplyr)
 install.packages("plotly")
 
-# cHarge les données de films à partir du fichier CSV
+```{cHarge les données de films à partir du fichier CSV}
 movies <- read.csv ("movies.csv")
-# Visualisation des données
-head(movies)
-# convertir release_date en date
-movies$release_date <- as.Date(movies$release_date)
+```
 
-# Extraire l'année de la date de sortie
+```{ Visualisation des données}
+head(movies)
+```
+
+```{ convertir release_date en date}
+movies$release_date <- as.Date(movies$release_date)
+```
+
+``` {Extraire l'année de la date de sortie}
 movies$year <- format(movies$release_date, "%Y")
 year<- movies$year
+```
 
 # Les données etant biaisées il est judicieux d'utiliser la durée moyenne des films pour avoir un meilleur graphique
 
 
-# Calcul de la durée moyenne des films par année
+```{Calcul de la durée moyenne des films par année}
 average_runtime_by_year<-movies %>%
   group_by(year) %>%
   summarise(average_runtime = mean(runtime, na.rm = TRUE))
+```
 
-# Trie des données par année pour la visualisation
+```{Trie des données par année pour la visualisation}
 average_runtime_by_year <- average_runtime_by_year %>%
   arrange(as.numeric(year))
+```
 
 
-# graphique de la durée moyenne des films par année
+```{graphique de la durée moyenne des films par année}
 ggplot(average_runtime_by_year, aes(x = as.numeric(year), y = average_runtime)) +
   geom_point()+
   geom_line(stat="identity", fill="skyblue")+
   labs(x = "Année ",y = "Durée moyenne des films",title="Evolution de la durée dans le temps") +
   theme_minimal()
+```
+
+**Analyse**
 
 Le graphique obtenu révèle une tendance potentielle dans l'évolution de la durée moyenne des films, qu'elle soit croissante ou décroissante.
 Avant 1920, la durée moyenne des films semble avoir été plus élevée par rapport aux autres années. Cependant, à partir de l'an 2000, la durée moyenne semble se stabiliser autour de 110 minutes.
@@ -574,32 +585,34 @@ Quant à la décroissance de la durée moyenne des films dans le temps, plusieur
 
 Pour analyser la distribution de la durée des films dans le temps, nous utiliserons un boxplot. Le calcul de la durée moyenne des films n'est pas nécessaire pour ce graphique. Voici le code associé :
 
-# cHarge les données de films à partir du fichier CSV
+```{cHarge les données de films à partir du fichier CSV}
 data <- read.csv ("movies.csv")
+```
 
-# convertir release_date en date
+ ```{convertir release_date en date}
 movies$release_date <- as.Date(movies$release_date)
-
-# Extraire l'année de la date de sortie
+```
+```{Extraire l'année de la date de sortie}
 movies$year <- format(movies$release_date, "%Y")
 year<- movies$year
+```
 
-
-# Changer pour modifier la durée des tranches
-
-# Création des intervalles de 5 ans pour découper les années
+```{Création des intervalles de 5 ans pour découper les années}
 intervalles <- seq(1900, 2020, by = 5)
+```
 
-# Création du graphique boxplot interactif
+```{Création du graphique boxplot interactif}
 plot_interactif_1 <- ggplot(data = data, aes(x = (cut(as.numeric(year), breaks = intervalles)), y = runtime)) +
   geom_boxplot(fill = "skyblue", color = "black", size = 0.3) +  
   labs(x = "Années (Tranche de 5 ans)", y = "Durée du film (en minutes)", title = "Distribution de la durée des films par tranche de 5 ans") +
   scale_y_continuous(labels = function(x) sprintf("%.1f", x)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-# Conversion en graphique interactif avec ggplotly
+```
+```{ Conversion en graphique interactif avec ggplotly}
 plotly_plot <- ggplotly(plot_interactif_1, tooltip = c())
 plotly_plot
+```
+**Analyse**
 
 Le graphique obtenu offre une vision claire de l'évolution de la durée des films de 1900 à 2020, mettant en évidence une tendance décroissante au fil du temps, confirmée à la fois par la médiane et la distribution des valeurs.
 Cependant, il est important de noter que le graphique montre également des films avec une durée de 0 minutes, ce qui est peu probable et pourrait être attribué à la présence de valeurs manquantes dans le jeu de données. De plus, des valeurs extrêmes au-dessus du troisième quartile (Q3) et en dessous du premier quartile (Q1) suggèrent la présence potentielle de données aberrantes.
