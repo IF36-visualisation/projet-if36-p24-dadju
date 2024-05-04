@@ -19,6 +19,8 @@ library(dplyr)
 library(readr)
 library(forcats)
 library(prettydoc)
+library(stringr)
+library(tidyverse)
 ```
 
 ```{r data}
@@ -219,3 +221,306 @@ ggplot(data = data_grouped, aes(x = vote_intervalle, y = mean_popularity)) +
 Les résultats obtenus sont conformes avec ce que l'on attendait. En effet, on constate que plus la note est élevée, et plus la popularité augmente. 
 
 En revanche, on voit que pour les notes très élevées (8,5+), la popularité est proche de 0, ce qui ne semble pas normal de prime abord. Cependant, si l'on recoupe ce graphique avec celui montrant la distribution des notes, on constate que très peu de réponses sont enregistrées pour les intervalles de 0 à 2,5 et 8,5 à 10. Ceci explique que la popularité moyenne attribuée soit aussi basse. Pour résoudre ce problème, il faudrait pouvoir collecter plus de données sur les films qui obtiennent une excellente note (ce qui est par ailleurs rare).
+
+### Succès du film
+
+Nous allons ensuite nous interroger sur les réalisateurs les plus populaires en fonction du genre du film.
+
+Pour cela, on récupère tout d'abord les genres des films contenus dans le dataset.
+
+```{r data_director_popularity}
+data_dirpop <- data.frame(genre=c(), director=c(), popularity=c())
+
+clean_data <- data %>% 
+  select(genres, popularity, director) %>%
+  arrange(desc(popularity))
+
+genres_0 <- data %>% select(genres)
+genres <- matrix(nrow = 10, ncol = 4803)
+for (i in 1:4803) { 
+  genres[i] <- str_split(genres_0[i,], ' ')
+}
+
+genre_list <- c()
+j <- 1
+for (elemt_0 in genres) {
+  for (elmt_1 in elemt_0) {
+    if ((!(elmt_1 %in% genre_list)) &(!(elmt_1 %in% NA))) {
+      genre_list[j] <- elmt_1
+      j <- j+1
+    }
+  }
+}
+
+if (("Science" %in% genre_list) & ("Fiction" %in% genre_list)) {
+  genre_list <- genre_list[(genre_list != "Science") & (genre_list != "Fiction")]
+  genre_list[length(genre_list)+1] <- "Science Fiction"
+} 
+
+for (genre in genre_list) {
+    film_filtered <- clean_data %>%
+                      filter(str_detect(genres, genre))
+    for (j in 1:3) {
+      tabgenre <- genre
+      tabdir <- film_filtered$director[j]
+      tabpop <- film_filtered$popularity[j]
+      data_dirpop <- rbind(data_dirpop, data.frame(genre=tabgenre, 
+                                                   director=tabdir, 
+                                                   popularity=tabpop))
+    }
+}
+
+print(genre_list)
+print(length(genre_list))
+```
+
+On obtient ainsi, 21 genres cinématographiques différents. Comme les données sont quantitatives discrètes (popularité) ou qualitatives (genre), on les présente en 3 graphiques en barres circulaires (circular barplot) selon le degré de popularité des films de chaque genre (grande popularité, popularité moyenne, faible popularité).
+
+```{r data_director_popularity_ordered}
+pop_max_by_genre <- c()
+i <- 1
+for (genree in genre_list) {
+  pop_max_by_genre[i] <- max((data_dirpop %>% filter(genre == genree))$popularity)
+  i <- i+1
+}
+
+data_dirpop1 <- data.frame(genre=c(), director=c(), popularity=c())
+data_dirpop2 <- data.frame(genre=c(), director=c(), popularity=c())
+data_dirpop3 <- data.frame(genre=c(), director=c(), popularity=c())
+
+j <- 1
+for (genre in genre_list) {
+  for (k in 1:3) {
+    genre_ordered <- genre
+    director_ordered <- data_dirpop$director[3*(j-1)+k]
+    popularity_ordered <- data_dirpop$popularity[3*(j-1)+k]
+      
+    if (pop_max_by_genre[j] > 450) {
+      data_dirpop1 <- rbind(data_dirpop1, data.frame(genre=genre_ordered, 
+                                                     director=director_ordered, 
+                                                     popularity=popularity_ordered))
+    } else if (pop_max_by_genre[j] > 100) {
+      data_dirpop2 <- rbind(data_dirpop2, data.frame(genre=genre_ordered, 
+                                                     director=director_ordered, 
+                                                     popularity=popularity_ordered))
+    } else {
+      data_dirpop3 <- rbind(data_dirpop3, data.frame(genre=genre_ordered, 
+                                                     director=director_ordered, 
+                                                     popularity=popularity_ordered))
+    }
+  }
+    j <- j+1
+}
+```
+
+```{r graph_director_popularity_by_genre1}
+empty_bar <- 2
+genre_to_add <- rep(levels(factor(data_dirpop1$genre)), each=empty_bar)
+to_add <- data.frame(genre=genre_to_add, director=NA, popularity=NA)
+
+data_dirpop1 <- rbind(data_dirpop1, to_add)
+data_dirpop1 <- data_dirpop1 %>% arrange(genre)
+data_dirpop1$id <- seq(1, nrow(data_dirpop1))
+
+label_data <- data_dirpop1
+number_of_bar <- nrow(label_data)
+angle <- 90 - 360 * (label_data$id-0.5) / number_of_bar
+label_data$hjust <- ifelse(angle < -90, 1, 0)
+label_data$angle <- ifelse(angle < -90, angle+180, angle)
+
+base_data <- data_dirpop1 %>%
+  group_by(genre) %>%
+  summarize(start=min(id), end=max(id) - empty_bar) %>%
+  rowwise() %>%
+  mutate(title=mean(c(start, end)))
+
+grid_data <- base_data
+grid_data$end <- grid_data$end[c(nrow(grid_data), 1:nrow(grid_data)-1)] + 1
+grid_data$start <- grid_data$start - 1
+grid_data <- grid_data[-1,]
+
+ggplot(data_dirpop1, aes(x=as.factor(id), y=popularity, fill=genre)) +
+  geom_bar(aes(x=as.factor(id), y=popularity, fill=genre), stat="identity", alpha=0.5) +
+  
+  geom_segment(data=grid_data, aes(x = end, y = 800, xend = start, yend = 800), 
+               colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 600, xend = start, yend = 600), 
+               colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 400, xend = start, yend = 400), 
+               colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 200, xend = start, yend = 200), 
+               colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  
+  annotate("text", x = rep(max(data_dirpop1$id),4), y = c(200, 400, 600, 800), 
+           label = c("200", "400", "600", "800") , color="grey", size=2.8 , 
+           angle=0, fontface="bold", hjust=0.9) +
+  
+  geom_bar(aes(x=as.factor(id), y=popularity, fill=genre), stat="identity", alpha=0.5) +
+  ylim(-500, 1300) +
+  theme_minimal() + 
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-1,4), "cm"),
+    plot.title = element_text(size=12, face="bold", colour="black", vjust=-15, hjust=0.5)
+  ) +
+  coord_polar() +
+  geom_text(data=label_data, aes(x=id, y=popularity+10, label=director, hjust=hjust), 
+            color="black", fontface="bold", alpha=0.6, size=3, angle=label_data$angle, 
+            inherit.aes = FALSE) +
+  
+  geom_segment(data = base_data, aes(x = start, y = -20, xend = end, yend = -20), 
+               colour = "gray25", alpha = 0.8, size = 0.3, inherit.aes = FALSE) +
+  geom_text(data = base_data, aes(x = title, y = -18, label = genre), colour = "gray10", 
+            alpha = 0.8, size = 2.5, fontface="bold", hjust=c(0.3, 1, 1.05, 0.5, 0, -0.1, 0.3), 
+            vjust=c(1.7, 1.9, -0.4, -0.9, -0.6, 0, 2.5), inherit.aes = FALSE) +
+  labs(title = "Réalisateurs les plus populaires par genre de film (à grande popularité)")
+```
+
+Les genres à grande popularité sont les genres dont les films ont une popularité supérieure 450. Ainsi, on retrouve des réalisateurs comme Kyle Balda, populaire dans les films d'aventure, d'animation, de comédie et de famille, ou Christopher Nolan, dans les films d'aventure, de science-fiction et les drames. Cependant, on remarque que la popularité de certains réalisateurs est la même dans plusieurs genres, car elle découle d'un film ayant plusieurs genres.
+
+```{r graph_director_popularity_by_genre2}
+empty_bar <- 2
+genre_to_add <- rep(levels(factor(data_dirpop2$genre)), each=empty_bar)
+to_add <- data.frame(genre=genre_to_add, director=NA, popularity=NA)
+
+data_dirpop2 <- rbind(data_dirpop2, to_add)
+data_dirpop2 <- data_dirpop2 %>% arrange(genre)
+data_dirpop2$id <- seq(1, nrow(data_dirpop2))
+
+label_data <- data_dirpop2
+number_of_bar <- nrow(label_data)
+angle <- 90 - 360 * (label_data$id-0.5) / number_of_bar
+label_data$hjust <- ifelse(angle < -90, 1, 0)
+label_data$angle <- ifelse(angle < -90, angle+180, angle)
+
+base_data <- data_dirpop2 %>%
+  group_by(genre) %>%
+  summarize(start=min(id), end=max(id) - empty_bar) %>%
+  rowwise() %>%
+  mutate(title=mean(c(start, end)))
+
+grid_data <- base_data
+grid_data$end <- grid_data$end[c(nrow(grid_data), 1:nrow(grid_data)-1)] + 1
+grid_data$start <- grid_data$start - 1
+grid_data <- grid_data[-1,]
+
+ggplot(data_dirpop2, aes(x=as.factor(id), y=popularity, fill=genre)) +
+  geom_bar(aes(x=as.factor(id), y=popularity, fill=genre), stat="identity", alpha=0.5) +
+  
+  geom_segment(data=grid_data, aes(x = end, y = 400, xend = start, yend = 400), 
+               colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 300, xend = start, yend = 300), 
+               colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 200, xend = start, yend = 200), 
+               colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 100, xend = start, yend = 100), 
+               colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  
+  annotate("text", x = rep(max(data_dirpop2$id),4), y = c(100, 200, 300, 400), 
+           label = c("100", "200", "300", "400") , color="grey", size=2.8 , angle=0, 
+           fontface="bold", hjust=0.8) +
+  
+  geom_bar(aes(x=as.factor(id), y=popularity, fill=genre), stat="identity", alpha=0.5) +
+  ylim(-230, 600) +
+  theme_minimal() + 
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-1,4), "cm"),
+    plot.title = element_text(size=12, face="bold", colour="black", vjust=-11, hjust=0.5)
+  ) +
+  coord_polar() +
+  geom_text(data=label_data, aes(x=id, y=popularity+10, label=director, hjust=hjust), 
+            color="black", fontface="bold", alpha=0.6, size=3, angle=label_data$angle, 
+            inherit.aes = FALSE) +
+  
+  geom_segment(data = base_data, aes(x = start, y = -5, xend = end, yend = -5), 
+               colour = "gray25", alpha = 0.8, size = 0.3, inherit.aes = FALSE) +
+  geom_text(data = base_data, aes(x = title, y = -18, label = genre), colour = "gray10", 
+            alpha = 0.8, size = 2.7, fontface="bold", hjust=c(0.4, 0.9, 1, 0.8, 0.5, 0.4, 0, 0, 0.5), 
+            vjust=c(1.3, 1.2, 0, -0.5, -0.3, -0.9, -0.3, 0.9, 1.6), angle=0, inherit.aes = FALSE) +
+  labs(title="Réalisateurs les plus populaires par genre de film (à popularité moyenne)")
+```
+
+Ici, les genres à popularité moyenne sont les genres dont les films ont une popularité entre 450 et 100. On retrouve Christopher Nolan, également populaire dans les films à énigme, ou George Miller et Colin Trevorrow, très populaires dans les thriller.
+
+```{r graph_director_popularity_by_genre3}
+library(tidyverse)
+
+empty_bar <- 2
+genre_to_add <- rep(levels(factor(data_dirpop3$genre)), each=empty_bar)
+to_add <- data.frame(genre=genre_to_add, director=NA, popularity=NA)
+
+data_dirpop3 <- rbind(data_dirpop3, to_add)
+data_dirpop3 <- data_dirpop3 %>% arrange(genre)
+data_dirpop3$id <- seq(1, nrow(data_dirpop3))
+
+label_data <- data_dirpop3
+number_of_bar <- nrow(label_data)
+angle <- 90 - 360 * (label_data$id-0.5) / number_of_bar
+label_data$hjust <- ifelse(angle < -90, 1, 0)
+label_data$angle <- ifelse(angle < -90, angle+180, angle)
+
+base_data <- data_dirpop3 %>%
+  group_by(genre) %>%
+  summarize(start=min(id), end=max(id) - empty_bar) %>%
+  rowwise() %>%
+  mutate(title=mean(c(start, end)))
+base_data$id <- seq(1, nrow(base_data))
+
+grid_data <- base_data
+grid_data$end <- grid_data$end[c(nrow(grid_data), 1:nrow(grid_data)-1)] + 1
+grid_data$start <- grid_data$start - 1
+grid_data <- grid_data[-1,]
+
+ggplot(data_dirpop3, aes(x=as.factor(id), y=popularity, fill=genre)) +
+  geom_bar(aes(x=as.factor(id), y=popularity, fill=genre), stat="identity", alpha=0.5) +
+
+  geom_segment(data=grid_data, aes(x = end, y = 80, xend = start, yend = 80), 
+               colour = "grey", alpha=1, size=0.3, inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 60, xend = start, yend = 60), 
+               colour = "grey", alpha=1, size=0.3, inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 40, xend = start, yend = 40), 
+               colour = "grey", alpha=1, size=0.3, inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 20, xend = start, yend = 20), 
+               colour = "grey", alpha=1, size=0.3, inherit.aes = FALSE ) +
+  
+  annotate("text", x = rep(max(data_dirpop3$id),4), y = c(20, 40, 60, 80), 
+           label = c("20", "40", "60", "80") , color="grey", size=3, angle=0, 
+           fontface="bold", hjust=1.6) +
+  
+  geom_bar(aes(x=as.factor(id), y=popularity, fill=genre), stat="identity", alpha=0.5) +
+  ylim(-50, 90) +
+  theme_minimal() + 
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-1,4), "cm"),
+    plot.title = element_text(size=12, face="bold", colour="black", vjust=-12, hjust=0.5)
+  ) +
+  coord_polar() +
+  geom_text(data=label_data, aes(x=id, y=popularity+10, label=director, hjust=hjust), 
+            color="black", fontface="bold", alpha=0.6, size=3, angle=label_data$angle, 
+            inherit.aes = FALSE) +
+  
+  geom_segment(data = base_data, aes(x = start, y = -5, xend = end, yend = -5), 
+               colour = "gray25", alpha = 0.8, size = 0.3, inherit.aes = FALSE) +
+  geom_text(data = base_data, aes(x = title, y = -18, label = genre), colour = "gray10", 
+            alpha = 0.8, size = 3, fontface="bold", hjust=c(0.4, 0.7, 0.5, 0.4, 0.8), 
+            vjust=c(0.6, 0.2, 1, 0.8, 0), angle=0, inherit.aes = FALSE) +
+  labs(title = "Réalisateurs les plus populaires par genre de film (à faible popularité)")
+```
+
+Enfin, les genres à faible popularité sont les genres dont les films ont une popularité inférieure à 100. Ainsi, on 
+remarque Elizabeth Banks, Rob Marshall et Ron Clements, populaires dans les films musicaux, ou Jeff Tremaine dans les films documentaires.
+
+**Analyse**
+
+Les résulats obtenus nous permettent de percevoir les réalisateurs les plus populaires par genre cinématographique. Ils permettent également de faire une première déduction des genres les plus populaires du dataset. Néanmoins, on peut remarquer qu'en raison des multiples genres définis pour chaque film, la popularité de certains films permet à leurs réalisateurs de se démarquer dans plusieurs genres à la fois. Ainsi, Kyle Balda a dû réalisé un film faisant partie des genres Adventure, Animation, Comedy et Family, lui permettant d'être classé dans plusieurs genres.
