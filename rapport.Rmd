@@ -524,3 +524,85 @@ remarque Elizabeth Banks, Rob Marshall et Ron Clements, populaires dans les film
 **Analyse**
 
 Les résulats obtenus nous permettent de percevoir les réalisateurs les plus populaires par genre cinématographique. Ils permettent également de faire une première déduction des genres les plus populaires du dataset. Néanmoins, on peut remarquer qu'en raison des multiples genres définis pour chaque film, la popularité de certains films permet à leurs réalisateurs de se démarquer dans plusieurs genres à la fois. Ainsi, Kyle Balda a dû réalisé un film faisant partie des genres Adventure, Animation, Comedy et Family, lui permettant d'être classé dans plusieurs genres.
+
+
+### Analyse des tendances temporelles
+
+Nous examinons l'évolution de la durée des films au fil du temps dans le but de déterminer si elle présente une tendance croissante ou décroissante. Étant donné que la date de sortie et la durée des films sont toutes deux des variables quantitatives continues, et que notre objectif est d'étudier une évolution, l'utilisation du graphique en ligne (geom_line) semble être une approche pertinente pour représenter ces données.
+
+library(ggplot2)
+library(dplyr)
+install.packages("plotly")
+
+# cHarge les données de films à partir du fichier CSV
+movies <- read.csv ("movies.csv")
+# Visualisation des données
+head(movies)
+# convertir release_date en date
+movies$release_date <- as.Date(movies$release_date)
+
+# Extraire l'année de la date de sortie
+movies$year <- format(movies$release_date, "%Y")
+year<- movies$year
+
+# Les données etant biaisées il est judicieux d'utiliser la durée moyenne des films pour avoir un meilleur graphique
+
+
+# Calcul de la durée moyenne des films par année
+average_runtime_by_year<-movies %>%
+  group_by(year) %>%
+  summarise(average_runtime = mean(runtime, na.rm = TRUE))
+
+# Trie des données par année pour la visualisation
+average_runtime_by_year <- average_runtime_by_year %>%
+  arrange(as.numeric(year))
+
+
+# graphique de la durée moyenne des films par année
+ggplot(average_runtime_by_year, aes(x = as.numeric(year), y = average_runtime)) +
+  geom_point()+
+  geom_line(stat="identity", fill="skyblue")+
+  labs(x = "Année ",y = "Durée moyenne des films",title="Evolution de la durée dans le temps") +
+  theme_minimal()
+
+Le graphique obtenu révèle une tendance potentielle dans l'évolution de la durée moyenne des films, qu'elle soit croissante ou décroissante.
+Avant 1920, la durée moyenne des films semble avoir été plus élevée par rapport aux autres années. Cependant, à partir de l'an 2000, la durée moyenne semble se stabiliser autour de 110 minutes.
+Des lacunes dans le graphique peuvent être observées, ce qui peut être attribué à la présence de valeurs manquantes dans les données.
+De meme , on remarque des pics sur ce graphique qui semblent influencer la croissance ou la décroissance de la courbe d'évolution. Ces pics pourraient-ils résulter de données aberrantes ou de valeurs extrêmes ?
+Quant à la décroissance de la durée moyenne des films dans le temps, plusieurs facteurs peuvent être en jeu. Il est possible que les préférences du public aient évolué, privilégiant des films plus courts. Cependant, il est également envisageable que les films contemporains soient structurés différemment, peut-être moins détaillés, ce qui entraînerait une réduction de leur durée moyenne.
+
+
+Pour analyser la distribution de la durée des films dans le temps, nous utiliserons un boxplot. Le calcul de la durée moyenne des films n'est pas nécessaire pour ce graphique. Voici le code associé :
+
+# cHarge les données de films à partir du fichier CSV
+data <- read.csv ("movies.csv")
+
+# convertir release_date en date
+movies$release_date <- as.Date(movies$release_date)
+
+# Extraire l'année de la date de sortie
+movies$year <- format(movies$release_date, "%Y")
+year<- movies$year
+
+
+# Changer pour modifier la durée des tranches
+
+# Création des intervalles de 5 ans pour découper les années
+intervalles <- seq(1900, 2020, by = 5)
+
+# Création du graphique boxplot interactif
+plot_interactif_1 <- ggplot(data = data, aes(x = (cut(as.numeric(year), breaks = intervalles)), y = runtime)) +
+  geom_boxplot(fill = "skyblue", color = "black", size = 0.3) +  
+  labs(x = "Années (Tranche de 5 ans)", y = "Durée du film (en minutes)", title = "Distribution de la durée des films par tranche de 5 ans") +
+  scale_y_continuous(labels = function(x) sprintf("%.1f", x)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Conversion en graphique interactif avec ggplotly
+plotly_plot <- ggplotly(plot_interactif_1, tooltip = c())
+plotly_plot
+
+Le graphique obtenu offre une vision claire de l'évolution de la durée des films de 1900 à 2020, mettant en évidence une tendance décroissante au fil du temps, confirmée à la fois par la médiane et la distribution des valeurs.
+Cependant, il est important de noter que le graphique montre également des films avec une durée de 0 minutes, ce qui est peu probable et pourrait être attribué à la présence de valeurs manquantes dans le jeu de données. De plus, des valeurs extrêmes au-dessus du troisième quartile (Q3) et en dessous du premier quartile (Q1) suggèrent la présence potentielle de données aberrantes.
+Enfin, il est intéressant de noter que certains films ont une durée d'un peu plus de 14 minutes. Il convient de se demander s'il s'agit réellement de longs métrages ou de bandes-annonces.
+
+
