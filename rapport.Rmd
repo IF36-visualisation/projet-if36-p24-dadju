@@ -534,19 +534,19 @@ library(ggplot2)
 library(dplyr)
 install.packages("plotly")
 
-```{cHarge les données de films à partir du fichier CSV}
+```{r cHarge les données de films à partir du fichier CSV}
 movies <- read.csv ("movies.csv")
 ```
 
-```{ Visualisation des données}
+```{r Visualisation des données}
 head(movies)
 ```
 
-```{ convertir release_date en date}
+```{r convertir release_date en date}
 movies$release_date <- as.Date(movies$release_date)
 ```
 
-``` {Extraire l'année de la date de sortie}
+``` {r Extraire l'année de la date de sortie}
 movies$year <- format(movies$release_date, "%Y")
 year<- movies$year
 ```
@@ -554,19 +554,19 @@ year<- movies$year
 # Les données etant biaisées il est judicieux d'utiliser la durée moyenne des films pour avoir un meilleur graphique
 
 
-```{Calcul de la durée moyenne des films par année}
+```{r Calcul de la durée moyenne des films par année}
 average_runtime_by_year<-movies %>%
   group_by(year) %>%
   summarise(average_runtime = mean(runtime, na.rm = TRUE))
 ```
 
-```{Trie des données par année pour la visualisation}
+```{r Trie des données par année pour la visualisation}
 average_runtime_by_year <- average_runtime_by_year %>%
   arrange(as.numeric(year))
 ```
 
 
-```{graphique de la durée moyenne des films par année}
+```{r graphique de la durée moyenne des films par année}
 ggplot(average_runtime_by_year, aes(x = as.numeric(year), y = average_runtime)) +
   geom_point()+
   geom_line(stat="identity", fill="skyblue")+
@@ -585,30 +585,30 @@ Quant à la décroissance de la durée moyenne des films dans le temps, plusieur
 
 Pour analyser la distribution de la durée des films dans le temps, nous utiliserons un boxplot. Le calcul de la durée moyenne des films n'est pas nécessaire pour ce graphique. Voici le code associé :
 
-```{cHarge les données de films à partir du fichier CSV}
+```{r cHarge les données de films à partir du fichier CSV}
 data <- read.csv ("movies.csv")
 ```
 
- ```{convertir release_date en date}
+ ```{r convertir release_date en date}
 movies$release_date <- as.Date(movies$release_date)
 ```
-```{Extraire l'année de la date de sortie}
+```{r Extraire l'année de la date de sortie}
 movies$year <- format(movies$release_date, "%Y")
 year<- movies$year
 ```
 
-```{Création des intervalles de 5 ans pour découper les années}
+```{r Création des intervalles de 5 ans pour découper les années}
 intervalles <- seq(1900, 2020, by = 5)
 ```
 
-```{Création du graphique boxplot interactif}
+```{r Création du graphique boxplot interactif}
 plot_interactif_1 <- ggplot(data = data, aes(x = (cut(as.numeric(year), breaks = intervalles)), y = runtime)) +
   geom_boxplot(fill = "skyblue", color = "black", size = 0.3) +  
   labs(x = "Années (Tranche de 5 ans)", y = "Durée du film (en minutes)", title = "Distribution de la durée des films par tranche de 5 ans") +
   scale_y_continuous(labels = function(x) sprintf("%.1f", x)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-```{ Conversion en graphique interactif avec ggplotly}
+```{r Conversion en graphique interactif avec ggplotly}
 plotly_plot <- ggplotly(plot_interactif_1, tooltip = c())
 plotly_plot
 ```
@@ -619,12 +619,12 @@ Cependant, il est important de noter que le graphique montre également des film
 Enfin, il est intéressant de noter que certains films ont une durée d'un peu plus de 14 minutes. Il convient de se demander s'il s'agit réellement de longs métrages ou de bandes-annonces.
 
 Dans une seconde partie, nous allons chercher à connaitre l’évolution de la popularité des films en fonction des années car comprendre l'évolution de la popularité des films au fil des ans peut fournir des informations précieuses sur les tendances de consommation de médias, les préférences du public et les changements culturels.
-#Attente : On s’imagine que de nos jours, les films sont plus populaires comparés aux années 1900.
+Attente : On s’imagine que de nos jours, les films sont plus populaires comparés aux années 1900.
 
 Pour réaliser une évolution, nous avons utilisé un geom_line(). Les variables utilisées, telles que la popularité et release_date, sont des variables quantitatives continues. 
 Tout d’abord nous avons effectué un premier prétraitement qui consistait à convertir la variable release_date en données de type Date puis d’en extraire l’année. Ensuite, calculer la popularité moyenne des films sur tous les ans. Enfin, construire un graphique avec la librairie ggplot2.
 
-```{Importation des libraires}
+```{r Importation des libraires}
 library(dplyr)
 library(ggplot2)
 library(plotly)
@@ -636,17 +636,17 @@ movies_data$year <- format(movies_data$release_date, "%Y")
 year <- movies_data$year
 ```
 
-```{Calculer la popularité moyenne par année}
+```{r Calculer la popularité moyenne par année}
 average_popularity_by_year <- movies_data %>%
   group_by(year) %>%
   summarise(average_popularity = mean(popularity, na.rm = TRUE))
 ```
 
-```{Filtrer les années jusqu'à l'année 2017 car le dataset ne comporte plus d'informations après celle-ci }
+```{r Filtrer les années jusqu'à l'année 2017 car le dataset ne comporte plus d'informations après celle-ci }
 average_popularity_by_year <- average_popularity_by_year %>% filter(year < 2017)
 ```
 
-```{Créer un graphique de la popularité moyenne des films par année}
+```{r Créer un graphique de la popularité moyenne des films par année}
 ggplot(average_popularity_by_year, aes(x = as.numeric(year), y = average_popularity)) +
   geom_line(stat = 'identity') +
   geom_point() +
@@ -658,6 +658,7 @@ ggplot(average_popularity_by_year, aes(x = as.numeric(year), y = average_popular
 
 
 **Analyse**
+
 On obtient comme une courbe stable entre les années 1900 – 1920, étant donné que le dataset ne comporte pas assez d’informations sur la popularité des films sur cette période. Aussi, on peut constater qu’avant les années 1980, les films étaient plus reconnus comparé à nos jours peut-être dû au fait qu’on n’en produisait pas assez, qu’on avait pas une large possibilité de choix. On peut le remarquer par la présence de nombreux pics sur cette période. Alors qu’après les années 1980, de nombreux pays s’adhèrent à la réalisation des films. On pourrait alors parler d’une forme de concurrence entre ceux-ci. Ceci pouvant expliquer par une certaine stabilité de la popularité des films sur cet intervalle.
 
 Nous allons essayer de comprendre la ou les raisons des pics a certaines périodes données sur le graphique.
@@ -666,20 +667,14 @@ Entre les années 1925 – 1950, on a des pics de popularité. En effet, l'indus
 
 Pour une meilleure appréciation de la popularité des films au cours des années, nous avons réalisé une distribution de celle – ci sur tous les 5 ans afin de savoir s’il y a eu des films qui ont été plus populaires que d’autres sur cet intervalle de temps ou bien s’il était en moyenne autour de la même valeur.
 
-```{Charger les données de films à partir du fichier CSV}
+```{r Extraire l'année de la date de sortie}
 data <- read.csv ("movies.csv")
-```
-
-```{convertir release_date en date}
 movies$release_date <- as.Date(movies$release_date)
-```
-
-```{Extraire l'année de la date de sortie}
 movies$year <- format(movies$release_date, "%Y")
 year<- movies$year
 ```
 
-```{Changer ou modifier la durée des tranches et creation du graphique de la distribution de la popularite des films }
+```{r Changer ou modifier la durée des tranches et creation du graphique de la distribution de la popularite des films }
 intervalles <- seq(1900, 2020, by = 5)
 plot_interactif <- ggplot(data = data, aes(x = (cut(as.numeric(year), breaks = intervalles)), y = popularity)) +
   geom_boxplot(fill = "brown", color = "black", size = 0.3) +  
@@ -691,37 +686,38 @@ plotly_plot
 
 
 **Analyse**
+
 On constate qu’à partir de l’année 1970 jusqu’à nos jours, il y a des films qui sont plus populaires que d’autres avec l'émergence de mouvements cinématographiques, Les genres populaires comprennent l'action, la science-fiction et les films pour adolescents. Les films de super-héros sont devenus omniprésents et les styles de films en 3D. Alors qu’avant les années 1970, nous étions dans une certaine suffisance ce qui pourrait justifier la raison pour laquelle il n’y a pas de films plus populaires que d’autres au cours de cette période-là.
 
 Cela nous amène à une nouvelle question qui est de savoir le nombre de films réalisés par pays chaque année.
 
- #Attente : On s’attend à avoir les Etats – Unis pour avoir réalisés le plus de films chaque année du fait qu’ils soient très présents sur des périodes émergentes de la cinématographie et à une hausse de production de films dans les années 2000.
+ Attente : On s’attend à avoir les Etats – Unis pour avoir réalisés le plus de films chaque année du fait qu’ils soient très présents sur des périodes émergentes de la cinématographie et à une hausse de production de films dans les années 2000.
 
 Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables utilisées, telles que production_countries et release_date, sont respectivement des variables catégorielles et quantitatives continues. 
 
 Au cours du prétraitement, nous avons constaté la présence de textes JSON dans la variable production_countries. De ce fait, nous avons créer une fonction pour nettoyer la colonne. Ensuite, nous devons compter le nombre de fois qu’un pays intervient dans la réalisation d’un film à une année donnée et le représenter.
 
-```{Fonction pour nettoyer la colonne en ne gardant que les lettres majuscules}
+```{r Fonction pour nettoyer la colonne en ne gardant que les lettres majuscules}
 clean_countries <- function(countries) {
   cleaned <- gsub("[^A-Z]", "", countries)
   return(cleaned)
 }
 ```
 
-```{Séparer la liste de façon propre }
+```{r Séparer la liste de façon propre }
 movies_data$production_countries <- gsub("\\[|\\]", "", movies_data$production_countries)
 movies_data <- movies_data %>%
   separate_rows(production_countries, sep = ", ") %>%
   filter(production_countries != "")
 ```
 
-```{Convertir et extraire l'année de la date de sortie }
+```{r Convertir et extraire l'année de la date de sortie }
 movies_data$release_date <- as.Date(movies_data$release_date)
 movies_data$year <- format(movies_data$release_date, "%Y")
 year <- movies_data$year
 ```
 
-```{Compter le nombre de films réalisés par pays de production et par année }
+```{r Compter le nombre de films réalisés par pays de production et par année }
 films_par_pays_par_annee <- movies_data %>%
   group_by(year, production_countries) %>%
   summarise(nombre_de_films = n()) %>%
@@ -732,13 +728,13 @@ films_par_pays_par_annee <- movies_data %>%
 films_par_pays_par_annee$production_countries <- sapply(films_par_pays_par_annee$production_countries, clean_countries)
 ```
 
-```{Ne garder que ceux qui, pour une année donnée, on fait plus de 5 films }
+```{r Ne garder que ceux qui, pour une année donnée, on fait plus de 5 films }
 films_par_pays_par_annee <- films_par_pays_par_annee %>%
   group_by(production_countries, year) %>%
   filter(sum(nombre_de_films) > 5)
 ```
 
-```{creation du graphique du nombre de films réalisés par pays et par année }
+```{r creation du graphique du nombre de films réalisés par pays et par année }
 plot_interactif <- ggplot(films_par_pays_par_annee, aes(x = as.numeric(year), y = nombre_de_films, fill = production_countries)) +
   geom_bar(stat = "identity") +
   labs(x = "Année", y = "Nombre de films réalisés", fill = "Pays", title = " Nombre de films réalisés par pays et par année ") +
