@@ -536,7 +536,7 @@ movies$year <- format(movies$release_date, "%Y")
 year <- movies$year
 ```
 
-Les données étant biaisées, il est judicieux d'utiliser la durée moyenne des films pour avoir un meilleur graphique.
+Les données contenant certaines fois des valeurs manquantes, il est judicieux d'utiliser la durée moyenne des films pour avoir un meilleur graphique.
 
 ```{r Calcul de la durée moyenne des films par année}
 average_runtime_by_year <- movies %>%
@@ -549,16 +549,18 @@ average_runtime_by_year <- average_runtime_by_year %>%
 ```{r graphique de la durée moyenne des films par année}
 ggplot(average_runtime_by_year, aes(x = as.numeric(year), y = average_runtime)) +
   geom_point()+
-  geom_line(stat="identity", fill="skyblue")+
+  geom_line(stat="identity", color="darkblue")+
+  geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed") +
   labs(x = "Année ", y = "Durée moyenne des films",title="Evolution de la durée dans le temps") +
-  theme_minimal()
+  theme_minimal() +
+  theme_gray()
 ```
 
 **Analyse**
 
 Le graphique obtenu révèle une tendance potentielle dans l'évolution de la durée moyenne des films, qu'elle soit croissante ou décroissante. Avant 1920, la durée moyenne des films semble avoir été plus élevée par rapport aux autres années. Cependant, à partir de l'an 2000, la durée moyenne semble se stabiliser autour de 110 minutes.
-Des lacunes dans le graphique peuvent être observées, ce qui peut être attribué à la présence de valeurs manquantes dans les données. De même, on remarque des pics sur ce graphique qui semblent influencer la croissance ou la décroissance de la courbe d'évolution. Ces pics pourraient-ils résulter de données aberrantes ou de valeurs extrêmes ?
-Quant à la décroissance de la durée moyenne des films dans le temps, plusieurs facteurs peuvent être en jeu. Il est possible que les préférences du public aient évolué, privilégiant des films plus courts. Cependant, il est également envisageable que les films contemporains soient structurés différemment, peut-être moins détaillés, ce qui entraînerait une réduction de leur durée moyenne.
+Des anomalies dans le graphique peuvent être observées, ce qui peut être attribué à la présence de valeurs manquantes dans les données. De même, on remarque des pics sur ce graphique qui semblent influencer la croissance ou la décroissance de la courbe d'évolution. Ces pics pourraient-ils résulter de données aberrantes ou de valeurs extrêmes ?
+Quant à la décroissance de la durée moyenne des films dans le temps, montrée par la courbe de tendance en pointillés, plusieurs facteurs peuvent être en jeu. Il est possible que les préférences du public aient évolué, privilégiant des films plus courts. Cependant, il est également envisageable que les films contemporains soient structurés différemment, peut-être moins détaillés, ce qui entraînerait une réduction de leur durée moyenne.
 
 
 Pour analyser la distribution de la durée des films dans le temps, nous utiliserons un boxplot. Le calcul de la durée moyenne des films n'est pas nécessaire pour ce graphique.
@@ -582,7 +584,7 @@ plotly_plot
 
 **Analyse**
 
-Le graphique obtenu offre une vision claire de l'évolution de la durée des films de 1900 à 2020, mettant en évidence une tendance décroissante au fil du temps, confirmée à la fois par la médiane et la distribution des valeurs. Cependant, il est important de noter que le graphique montre également des films avec une durée de 0 minutes, ce qui est peu probable et pourrait être attribué à la présence de valeurs manquantes dans le jeu de données. De plus, des valeurs extrêmes au-dessus du troisième quartile (Q3) et en dessous du premier quartile (Q1) suggèrent la présence potentielle de données aberrantes. Enfin, il est intéressant de noter que certains films ont une durée d'un peu plus de 14 minutes. Il convient de se demander s'il s'agit réellement de longs métrages ou de bandes-annonces.
+Le graphique obtenu offre une vision claire de l'évolution de la durée des films de 1900 à 2020, mettant en évidence une tendance décroissante au fil du temps, confirmée à la fois par la médiane et la distribution des valeurs. Cependant, il est important de noter que le graphique montre également des films avec une durée de 0 minutes, ce qui est peu probable et pourrait être attribué à la présence de valeurs manquantes dans le jeu de données. De plus, des valeurs extrêmes au-dessus du troisième quartile (Q3) et en dessous du premier quartile (Q1) suggèrent la présence potentielle de données aberrantes ou de films qui sortent de la norme. Enfin, il est intéressant de noter que certains films ont une durée d'un peu plus de 14 minutes. Il convient de se demander s'il s'agit réellement de longs métrages ou de courts métrages.
 
 Dans une seconde partie, nous allons chercher à connaitre l’évolution de la popularité des films en fonction des années, car comprendre l'évolution de la popularité des films au fil des ans peut fournir des informations précieuses sur les tendances de consommation de médias, les préférences du public et les changements culturels.
 
@@ -606,12 +608,14 @@ average_popularity_by_year <- average_popularity_by_year %>% filter(year < 2017)
 
 ```{r Créer un graphique de la popularité moyenne des films par année}
 ggplot(average_popularity_by_year, aes(x = as.numeric(year), y = average_popularity)) +
-  geom_line(stat = 'identity') +
+  geom_line(stat = 'identity', color="darkblue") +
+  geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed") +
   geom_point() +
   labs(title = "Évolution de la Popularité des Films par Année",
        x = "Année",
        y = "Popularité Moyenne") +
-  theme_minimal()
+  theme_minimal() +
+  theme_gray() 
 ```
 
 
@@ -656,9 +660,9 @@ Cela nous amène à une nouvelle question qui est de savoir le nombre de films r
 
 Attente : On s’attend à avoir les États-Unis pour avoir réalisé le plus de films chaque année du fait qu’ils soient très présents sur des périodes émergentes de la cinématographie et à une hausse de production de films dans les années 2000.
 
-Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables utilisées, telles que production_countries et release_date, sont respectivement des variables nominales et quantitatives continues. 
+Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables utilisées, telles que la compagnie de production et la date, sont respectivement des variables qualitatives nominales et quantitatives continues. 
 
-Au cours du prétraitement, nous avons constaté la présence de textes JSON dans la variable production_countries. De ce fait, nous avons créer une fonction pour nettoyer la colonne. Ensuite, nous devons compter le nombre de fois qu’un pays intervient dans la réalisation d’un film à une année donnée et le représenter.
+Au cours du prétraitement, nous avons constaté la présence de textes JSON dans la variable de compagnie de production. De ce fait, nous avons créer une fonction pour nettoyer la colonne. Ensuite, nous devons compter le nombre de fois qu’un pays intervient dans la réalisation d’un film à une année donnée et le représenter.
 
 ```{r Fonction pour nettoyer la colonne en ne gardant que les lettres majuscules}
 clean_countries <- function(countries) {
@@ -705,4 +709,5 @@ plotly_plot
 **Analyse**
 
 On remarque qu’effectivement, ce sont les États-Unis qui réalisent le plus de films sur les années. Aussi, on constate que la production des films a doublé à partir de l’année 1997 et triplé à partir des années 2000.
-Les espaces vides présents sur le graphique peuvent s’expliquer par le manque de valeurs à ces instants. De plus, le dataset ne représentent que les pays qui ont réalisé plus de 5 films sur une année donnée pour éviter la surcharge et obtenir une meilleure visibilité car avant les années 1960, les pays producteurs réalisaient moins de 5 films par année.
+Les espaces vides présents sur le graphique peuvent s’expliquer par le manque de valeurs à ces instants. De plus, le graphique ne représent que les pays qui ont réalisé plus de 5 films sur une année donnée pour éviter la surcharge et obtenir une meilleure visibilité car avant les années 1960, les pays producteurs réalisaient moins de 5 films par année.
+Même si la prépondérance des Etats-Unis est notable, il convient de souligner qu'à partir des années 2000, les pays producteurs se diversifient.
