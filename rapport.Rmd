@@ -224,6 +224,66 @@ Les résultats obtenus sont conformes avec ce que l'on attendait. En effet, on c
 
 En revanche, on voit que pour les notes très élevées (8,5+), la popularité est proche de 0, ce qui ne semble pas normal de prime abord. Cependant, si l'on recoupe ce graphique avec celui montrant la distribution des notes, on constate que très peu de réponses sont enregistrées pour les intervalles de 0 à 2,5 et 8,5 à 10. Ceci explique que la popularité moyenne attribuée soit aussi basse. Pour résoudre ce problème, il faudrait pouvoir collecter plus de données sur les films qui obtiennent une excellente note (ce qui est par ailleurs rare).
 
+
+---
+
+
+Maintenant que nous avons montré le lien entre la note et la popularité du film, nous allons nous pencher sur l'étude de la distribution du buget par tranches de notes. Il est intéressant d'essayer de comprendre ce qui peut jouer dans la note qu'attribue un utilisateur à un film.
+
+Nous nous attendons plutôt à ce qu'un film avec un budget important obtienne une bonne note, même si l'on sait que des films à faible budget sont aussi capables d'avoir de bonnes notes et inversement.
+
+Commençons par analyser le budget, qui est une variable quantitative continue, à l'aide d'un histogramme.
+
+```{r analyse budget}
+ggplot(data = data, mapping = aes(x = budget)) +
+  geom_histogram(bins = 60, fill = "#69b3a2") +
+  labs(title = "Analyse de la répartition du budget attribué aux films",
+       x = "Budget attribué",
+       y = "Nombre d'occurrences")
+```
+
+On constate que plus de 1500 films ont un budget de 0, ce qui n'est pas concevable. Nous allons donc exclure ces données enregistrées à 0 par extraction conditionnelle pour la suite de l'analyse, afin de ne pas fausser les résultats. En effet, un film coûte forcément de l'argent pour être réalisé. 
+
+Nous avons à disposition le budget qui est une variable quantitative continue, et la note que l'on laisse sous la forme de variable qualitative ordonnée.
+
+Puisque l'on souhaite faire une distribution, on utilise un boxplot (la moyenne, à titre indicatif, est représentée par un point bleu). 
+
+Avant de créer ce boxplot, plusieurs prétraitements sont nécessaires. Outre l'extraction conditionnelle, nous devons aussi créer des intervalles de notes de 1 à 10 par pas de 1 pour que nous graphique soit plus lisible. Nous répartissons ensuite ces données dans ces tranches avant d'effectuer la distribution.
+
+Pour plus de lisibilité, le diagramme suivant est interactif afin de pourvoir zoomer sur certaines parties, et obtenir les valeurs correspondantes. 
+
+```{r comparaison_note_budget}
+
+data_filtered <- data[data$budget != 0 & data$vote_average != 0, ]
+intervalles <- seq(0, 10, by = 1)
+plot_interactif_1 <- ggplot(data = data_filtered, aes(x = cut(vote_average, breaks = intervalles), y = budget)) +
+    geom_boxplot(fill = "skyblue", color = "black", size = 0.3) +  
+    stat_summary(fun = "mean", geom = "point", shape = 20, size = 2, color = "darkblue") +
+    labs(x = "Note obtenue", y = "Budget du film (en M de $)", title = "Distribution du budget des films en fonction de la note obtenue par tranche de 1") +
+    scale_y_continuous(labels = function(x) sprintf("%.1f M", x / 1e6)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+plotly_plot <- ggplotly(plot_interactif_1, tooltip = c())
+plotly_plot
+
+```
+
+**Analyse**
+
+On constate que finalement, ce ne sont pas forcément les films avec le plus gros budget qui obtiennent la meilleure note. 
+
+Les budgets médians les plus élevés sont pour les notes comprises entre 5 et 7, ce qui signifie qu'il n'existe pas de relation claire entre le budget d'un film et sa note. Un budget plus faible, comme c'est le cas pour la médiane des notes de 2 à 5 et de 7 à 9, peut donner un très bon film comme un mauvais film aux yeux des spectateurs. 
+
+Ici, les outliers sont intéressants puisque l'on constate que plusieurs très gros budgets mènent à une note correcte voire très bonne.On en recense pas d'outliers qui aurait un budget très important et une note très basse, ce qui pourrait vouloir dire qu'u budget élevé garantirait en quelques sortes une note acceptable. 
+
+La moyenne est en accord avec les résultats évoqués après analyse de la médiane, à savoir que les films avec une note bonne mais pas excellente, on en moyenne le budget le plus élevé.
+
+Les données des notes 1,2 et 9,10 sont à relativiser puisque très peu d'observations sont faites sur ces intervalles. 
+
+On comprend avec cette visualisation que le budget seul ne peut pas expliquer une bonne ou mauvaise note, que d'autres facteurs entrent certainement en jeu. Cependant, lorsqu'un film est en préparation, il faut réfléchir à sa rentabilité, à l'équilibre financier. Même si une bonne note pourrait inciter les personnes à acheter ou aller voir le film, il est envisageable d'aller au cinéma pour voir un film avec beaucoup d'actions ou un gros casting, même si la note n'est pas exceptionnelle par exemple. Dans ce cas, il faudrait nous intéresser plutôt à la popularité du film qu'à sa note.
+
+---
+
+
 ### Succès du film
 
 Nous allons ensuite nous interroger sur les réalisateurs les plus populaires en fonction du genre du film.
