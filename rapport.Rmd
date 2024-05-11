@@ -165,7 +165,8 @@ Ici, on pourrait analyser les features telles que le slogan, le titre, le synops
 
 ### Appréciation du film
 
-Nous allons nous interroger dans un premier temps sur le lien que l'on peut avoir entre la note attribuée au film et sa popularité.
+Nous allons nous interroger dans un premier temps sur le lien que l'on peut avoir entre la note attribuée par les utilisateurs au film et sa popularité.
+Dans le dataset récupéré, il n'est pas explicité clairement à quoi correspond la popularité du film. Nous prenons donc le parti de dire que la popularité correspond au volume d'activité lié au film, c'est à dire si les personnes le regardent, peu importe qu'elles l'apprécient ou non.
 
 On s'attend à ce que plus un film est populaire, et plus sa note moyenne est élevée. 
 
@@ -174,31 +175,31 @@ Tout d'abord, on effectue une rapide analyse de nos données présentes pour ces
 ```{r analyse note}
 ggplot(data = data, mapping = aes(x = vote_average)) +
   geom_histogram(bins = 30, fill = "#69b3a2") +
-  labs(title = "Analyse de la répartition des notes moyennes attribuées aux films",
+  labs(title = "Répartition des notes moyennes attribuées aux films",
        x = "Note moyenne obtenue",
        y = "Nombre d'occurrences") 
 ```
 
 Nous constatons que les données semblent cohérentes, exceptées celles qui ont une note moyenne de 0. En effet, il est difficilement concevable de penser qu'un film jugé par plusieurs personnes se voit attribuer la note moyenne de 0. On peut imaginer qu'il s'agissait de valeurs manquantes mises à 0 dans le dataset.
-Nous prendrons donc le parti, pour la question du lien entre popularité et note, de retirer les lignes qui ont une note de 0.
+Nous prendrons donc le parti, pour la question du lien entre popularité et note, de retirer les lignes qui ont une note de 0. On utilise une technique d'extraction sous conditions pour faire cela.
 
 ```{r analyse popularité}
 data_filtered_1 <- subset(data, popularity < 150)
 
 ggplot(data = data_filtered_1, mapping = aes(x = popularity)) +
   geom_histogram(bins = 30, fill = "#69b3a2") +
-  labs(title = "Analyse de la répartition de la popularité attribuée aux films",
+  labs(title = "Répartition de la popularité attribuée aux films",
        x = "Popularité attribuée",
        y = "Nombre d'occurrences")
 ```
 
 
-Ici la popularité a été filtrée pour ne sélectionner que celle inférieure à 150. En effet, seules 19 valeurs sont au dessus de cette limite que nous nous fixons. La popularité moyenne est de `r round(mean(data$popularity[data$popularity < 150]), 1)`.
+Ici la popularité a été filtrée avec la même technique que pour la note, pour ne sélectionner que les films avec un popularité inférieure à 150. En effet, seules 19 valeurs sont au dessus de cette limite que nous nous fixons. La popularité moyenne est de `r round(mean(data$popularity[data$popularity < 150]), 1)`.
 
 
-Pour obtenir un graphique lisible par la suite, nous allons calculer la popularité moyenne en fonction de la note moyenne (par intervalle de note de 0.5). La popularité moyenne est donc une variable quantitative continue, et après modification, la note moyenne devient une variable qualitative ordonnée.
+Pour obtenir un graphique lisible par la suite, nous allons calculer la popularité moyenne en fonction de la note moyenne. Pour cela, nous commençons par créer des intervalles de note de 0.5 en 0.5, puis nous dispachons nos données dans les intervalles correspondant avant de faire la moyenne de la popularité pour chaque intervalle. La popularité moyenne est donc une variable quantitative continue, et après modification, la note moyenne devient une variable qualitative ordonnée.
 
-Comme on souhaite comparer ces deux éléments, on réalisera un diagramme en barres.
+Comme on souhaite comparer ces deux éléments, on réalisera un diagramme en barres. Nous ajustons la largeur des barres pour que le graphique soit plus agréable à lire.
 
 ```{r comparaison_note_popularite}
 
@@ -214,7 +215,7 @@ ggplot(data = data_grouped, aes(x = vote_intervalle, y = mean_popularity)) +
    scale_x_discrete(labels = paste0(intervalles, " - ", intervalles + 0.5)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
   labs(x = "Note moyenne", y = "Popularité moyenne", 
-       title = "Popularité moyenne en fonction de la note moyenne")
+       title = "Popularité moyenne par tranche de note de 0.5")
 ```
 
 **Analyse**
