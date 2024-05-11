@@ -283,6 +283,62 @@ On comprend avec cette visualisation que le budget seul ne peut pas expliquer un
 
 ---
 
+Maintenant que nous avons analysé la distribution du budget en fonction de la note, nous allons essayer de comparer le budget et la popularité. 
+
+En effet, nous pensons qu'un film avec un gros budget peut être populaire dans l'esprit collectif. Lorsque l'on voit qu'un film s'est vu attribuer un budget conséquent, on peut espérer un beau casting, des décors travaillés ou encore une animation attractive, et donc être amenés à vouloir visionner ce film. 
+
+On s'attend donc à ce que plus un film a un gros budget, et plus il soit populaire. 
+
+Comme nous souhaitons faire une comparaison, nous allons réaliser un scatter plot. Nous ajustons la transparence des points afin d'également visualiser la densité des données sur certains intervalles. Nous créons également une courbe de tendance à titre indicatif. Enfin nous prétraitons nos données en amont pour n'extraire que les individus avec une popularité inférieure à 150 et un budget différent de 0.
+
+```{r comparaison_popularite_budget_1}
+data_filtered_1 <- subset(data, popularity < 150 & budget != 0)
+
+ggplot(data = data_filtered_1, aes(x = budget, y = popularity)) +
+  geom_point(colour = "darkorange", size = 3, alpha = 0.4) + 
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = 2) +
+  scale_x_continuous(labels = function(x) x / 1e6) +
+  labs(x = "Budget du film (en millions de dollars)", y = "Popularité", title = "Popularité en fonction du budget des films") +
+  theme_gray() 
+
+```
+
+On observe sur cette visualisation une tendance générale où plus le budget est important et plus la popularité est grande. Comme nous avons beaucoup de données en dessous de 100M de dollars de budget, il est difficile de bien évaluer cette partie. 
+
+Pour une approche un peu différente, nous créons des tranches de 10M de dollars et nous calculons pour chaque tranche la popularité moyenne. 
+
+
+```{r comparaison_popularite_budget_2}
+
+data_filtered_1 <- subset(data, popularity < 150 & budget != 0)
+tranches <- seq(0, max(data_filtered_1$budget), by = 5e6)
+
+data_aggregated <- data_filtered_1 %>%
+  mutate(budget_tranche = cut(budget, breaks = tranches)) %>%
+  group_by(budget_tranche) %>%
+  summarise(mean_popularity = mean(popularity, na.rm = TRUE))
+
+ggplot(data = data_aggregated, aes(x = as.numeric(budget_tranche), y = mean_popularity)) +
+  geom_point(colour = "#69b3a2", size = 3) + 
+  geom_smooth(method = "lm", se = FALSE, color = "darkgreen", linetype = 2) +
+  scale_x_continuous(labels = function(x) x * 5) +
+  labs(x = "Budget du film (en millions de dollars)", y = "Popularité moyenne", title = "Popularité moyenne en fonction du budget des films") +
+  theme_gray() 
+
+```
+
+
+**Analyse**
+
+Ce processus nous permet de mettre encore plus en évidence la corrélation entre le budget et la popularité. Plus le budget est élevé, et plus la popularité l'est. 
+
+Nous nous attendions à ce résultat avant de réaliser le graphique. En effet, il est courant qu'un film qui est attendu avec un gros budget soit populaire même si ce n'est pas le film de l'année. Cela rejoint ce que nous avions pensé suite à l'étude du lien potentiel entre la note et le budget.  
+
+Dans le budget, on comprend à la fois la rémunération des acteurs, des techniciens, des figurants, des réalisateurs, mais aussi tout ce qui touche à la musique, l'éclairage, la postproduction, le matériel, la régie, les assurances ou encore les droits artistiques et les actions de promotion. Engager un budget conséquent signifie donc très certainement de s'attendre à une retombée financière importante. C'est ce que nous allons essayer de voir dans la question suivante. 
+
+
+---
+
 
 ### Succès du film
 
