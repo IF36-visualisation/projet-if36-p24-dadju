@@ -336,6 +336,39 @@ Nous nous attendions à ce résultat avant de réaliser le graphique. En effet, 
 
 Dans le budget, on comprend à la fois la rémunération des acteurs, des techniciens, des figurants, des réalisateurs, mais aussi tout ce qui touche à la musique, l'éclairage, la postproduction, le matériel, la régie, les assurances ou encore les droits artistiques et les actions de promotion. Engager un budget conséquent signifie donc très certainement de s'attendre à une retombée financière importante. C'est ce que nous allons essayer de voir dans la question suivante. 
 
+---
+
+Nous vérifions ce point en commençant d'abord par enlever de notre dataset les budgets ou les revenus qui vallent 0. Ensuite, nous créons des tranches de 20M pour le budget, et nous calculons pour chaque tranche le revenu moyen. Le revenu moyen est une variable quantitative continue, et après modification, les tranches de budget deviennent une variable qualitative ordonnée.Comme on souhaite comparer ces deux éléments, on réalisera un diagramme en barres annoté pour plus de lisibilité.
+
+
+```{r comparaison_revenus_budget_3}
+
+data_filtered_1 <- subset(data, budget != 0 & revenue != 0)
+tranches <- seq(0, max(data_filtered_1$budget), by = 20e6)
+
+data_aggregated <- data_filtered_1 %>%
+  mutate(budget_tranche = cut(budget, breaks = tranches)) %>%
+  group_by(budget_tranche) %>%
+  summarise(mean_revenue = mean(revenue, na.rm = TRUE))
+
+ggplot(data = data_aggregated, aes(x = as.numeric(budget_tranche), y = mean_revenue)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  geom_text(aes(label = sprintf("%.1f", mean_revenue / 1e6)), vjust = -0.5, size = 3) +
+  scale_x_continuous(labels = function(x) x * 20) +
+  scale_y_continuous(labels = function(x) x / 1e6) +
+  labs(x = "Budget du film (en millions de dollars par tranches de 20M)", y = "Revenus moyen (en millions de dollars)", title = "Revenus moyen en fonction du budget des films par tranche de 20M de $") +
+  theme_gray()
+
+```
+
+**Analyse**
+
+Comme prévu, plus le budget du film augmente et plus les revenus augmentent. Le trou observé entre 320 et 360M de dollars sur le budget correspond à un manque de données poour ces budgets là.
+
+On constate également un chiffre anormalement élevé pour les revenus à 1 123M de dollars. Si l'on se penche un peu plus en détail sur les données, on constate que pour cette tranche là, se trouve le film Avatar sorti en 2009, qualifié du "plus gros succès cinématographique de tous les temps". Il détient le record de recettes, estimées à 2,7 milliards de dollars. Ce chiffre étant très important, il influe forcément sur la moyenne calculée, d'où le pic observé pour cette tranche. 
+
+Nous n'avons malheureusement pas le détail des recettes obtenues par pays, ni le détail du budet des films, ce qui aurait pu être intéressant pour poursuivre notre analyse et l'approfondir. Néanmoins, nous avons prouvé à travers cette question qu'un budget plus conséquent a tendance à être synonyme de recettes importantes.
+
 
 ---
 
