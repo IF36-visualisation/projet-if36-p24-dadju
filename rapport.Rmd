@@ -736,11 +736,11 @@ plotly_plot
 
 Le graphique obtenu offre une vision claire de l'évolution de la durée des films de 1900 à 2020, mettant en évidence une tendance décroissante au fil du temps, confirmée à la fois par la médiane et la distribution des valeurs. Cependant, il est important de noter que le graphique montre également des films avec une durée de 0 minutes, ce qui est peu probable et pourrait être attribué à la présence de valeurs manquantes dans le jeu de données. De plus, des valeurs extrêmes au-dessus du troisième quartile (Q3) et en dessous du premier quartile (Q1) suggèrent la présence potentielle de données aberrantes ou de films qui sortent de la norme. Enfin, il est intéressant de noter que certains films ont une durée d'un peu plus de 14 minutes. Il convient de se demander s'il s'agit réellement de longs métrages ou de courts métrages.
 
-Dans une seconde partie, nous allons chercher à connaitre l’évolution de la popularité des films en fonction des années, car comprendre l'évolution de la popularité des films au fil des ans peut fournir des informations précieuses sur les tendances de consommation de médias, les préférences du public et les changements culturels.
+Dans une seconde partie, nous allons chercher à connaitre l’évolution de la popularité des films en fonction des années, car comprendre cette évolution au fil des ans peut fournir des informations précieuses sur les tendances de consommation de médias, les préférences du public et les changements culturels.
 
 Attente : On s’imagine que de nos jours, les films sont plus populaires comparés aux années 1900.
 
-Pour réaliser une évolution, nous avons utilisé un geom_line(). Les variables utilisées, telles que la popularité et la date de sortie, sont des variables quantitatives continues. 
+Nous avons utilisé un geom_line() car nous voulons suivre l'évolution de cette popularité au fil des années. Les variables utilisées, telles que la popularité et la date de sortie, sont des variables quantitatives continues. 
 Tout d’abord nous avons effectué un premier prétraitement qui consistait à convertir la variable release_date en données de type Date puis d’en extraire l’année. Ensuite, calculer la popularité moyenne des films sur tous les ans. Enfin, construire un graphique avec la librairie ggplot2.
 
 ```{r}
@@ -771,7 +771,7 @@ ggplot(average_popularity_by_year, aes(x = as.numeric(year), y = average_popular
 
 **Analyse**
 
-On obtient comme une courbe stable entre les années 1900 – 1920, étant donné que le dataset ne comporte pas assez d’informations sur la popularité des films sur cette période. Aussi, on peut constater qu’avant les années 1980, les films étaient plus reconnus comparé à nos jours peut-être dû au fait qu’on n’en produisait pas assez, qu’on avait pas une large possibilité de choix. On peut le remarquer par la présence de nombreux pics sur cette période. Alors qu’après les années 1980, de nombreux pays s’adhèrent à la réalisation des films. On pourrait alors parler d’une forme de concurrence entre ceux-ci. Ceci pouvant expliquer par une certaine stabilité de la popularité des films sur cet intervalle.
+On obtient comme une courbe stable entre les années 1900 – 1920, étant donné que le dataset ne comporte pas assez d’informations sur la popularité des films sur cette période. Aussi, on peut constater qu’avant les années 1980, les films étaient plus reconnus comparé à nos jours peut-être dû au fait qu’on n’en produisait pas assez ou qu’on avait pas une large possibilité de choix. On peut le remarquer par la présence de nombreux pics sur cette période. Alors qu’après les années 1980, de nombreux pays s’adhèrent à la réalisation des films. On pourrait alors parler d’une forme de concurrence entre ceux-ci. Ceci pouvant s'expliquer par une certaine stabilité de la popularité des films sur cet intervalle.
 
 Nous allons essayer de comprendre la ou les raisons des pics a certaines périodes données sur le graphique.
 
@@ -804,7 +804,9 @@ plotly_plot
 
 **Analyse**
 
-On constate qu’à partir de l’année 1970 jusqu’à nos jours, il y a des films qui sont plus populaires que d’autres avec l'émergence de mouvements cinématographiques, Les genres populaires comprennent l'action, la science-fiction et les films pour adolescents. Les films de super-héros sont devenus omniprésents et les styles de films en 3D. Alors qu’avant les années 1970, nous étions dans une certaine suffisance ce qui pourrait justifier la raison pour laquelle il n’y a pas de films plus populaires que d’autres au cours de cette période-là.
+Pour l'affichage du graphique, nous n'avons considéré la popularité qu'entre 0 et 250 car ce n'est que dans cet intervalle que les points sont representés. Aussi, cette décision a été prise afin d'obtenir une meilleure appréciation et lisibilité de la popularité moyenne des films.
+
+On constate qu’à partir de l’année 1970 jusqu’à nos jours, il y a des films qui sont plus populaires que d’autres avec l'émergence de mouvements cinématographiques, Les genres populaires comprennent l'action, la science-fiction pour adolescents. Les films de super-héros sont devenus omniprésents et les styles de films en 3D. Alors qu’avant les années 1970, nous étions dans une certaine suffisance ce qui pourrait justifier la raison pour laquelle il n’y a pas de films plus populaires que d’autres au cours de cette période-là.
 
 Cela nous amène à une nouvelle question qui est de savoir le nombre de films réalisés par pays chaque année.
 
@@ -859,5 +861,5 @@ plotly_plot
 **Analyse**
 
 On remarque qu’effectivement, ce sont les États-Unis qui réalisent le plus de films sur les années. Aussi, on constate que la production des films a doublé à partir de l’année 1997 et triplé à partir des années 2000.
-Les espaces vides présents sur le graphique peuvent s’expliquer par le manque de valeurs à ces instants. De plus, le graphique ne représent que les pays qui ont réalisé plus de 5 films sur une année donnée pour éviter la surcharge et obtenir une meilleure visibilité car avant les années 1960, les pays producteurs réalisaient moins de 5 films par année.
+Les espaces vides présents sur le graphique peuvent s’expliquer par le manque de valeurs à ces instants. De plus, le graphique ne représente que les pays qui ont réalisé plus de 5 films sur une année donnée pour éviter la surcharge et obtenir une meilleure visibilité car avant les années 1960, les pays producteurs réalisaient moins de 5 films par année.
 Même si la prépondérance des Etats-Unis est notable, il convient de souligner qu'à partir des années 2000, les pays producteurs se diversifient.
