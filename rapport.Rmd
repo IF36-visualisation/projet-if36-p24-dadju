@@ -387,9 +387,15 @@ clean_data <- data %>%
   arrange(desc(popularity))
 
 genres_0 <- data %>% select(genres)
-genres <- matrix(nrow = 10, ncol = 4803)
+genres <- c()
 for (i in 1:4803) { 
-  genres[i] <- str_split(genres_0[i,], ' ')
+  genres_split <- unlist(str_split(genres_0[i,], ' '))
+  if ("Science" %in% genres_split) {
+    genres_split <- genres_split[(genres_split != "Science") & (genres_split != "Fiction")]
+    genres_split[length(genres_split)+1] <- "Science Fiction"
+    
+  }
+  genres[i] <- list(genres_split)
 }
 
 genre_list <- c()
@@ -402,11 +408,6 @@ for (elemt_0 in genres) {
     }
   }
 }
-
-if (("Science" %in% genre_list) & ("Fiction" %in% genre_list)) {
-  genre_list <- genre_list[(genre_list != "Science") & (genre_list != "Fiction")]
-  genre_list[length(genre_list)+1] <- "Science Fiction"
-} 
 
 for (genre in genre_list) {
     film_filtered <- clean_data %>%
