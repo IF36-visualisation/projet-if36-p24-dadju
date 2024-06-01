@@ -109,7 +109,7 @@ Dans cette partie, on s’interrogera sur les facteurs qui pourraient ressortir 
 
 - Quel genre de film génère le plus de revenus ?
 
-- Est-ce qu’il y a un lien entre le genre et la popularité ?
+- Quels sont les genres les plus populaires ?
 
 - Est-ce qu'il y a un lien entre les acteurs et la popularité ou la note du film ?
   
@@ -674,6 +674,122 @@ remarque Elizabeth Banks, Rob Marshall et Ron Clements, populaires dans les film
 
 Les résulats obtenus nous permettent de percevoir les réalisateurs les plus populaires par genre cinématographique. Ils permettent également de faire une première déduction des genres les plus populaires du dataset. Néanmoins, on peut remarquer qu'en raison des multiples genres définis pour chaque film, la popularité de certains films permet à leurs réalisateurs de se démarquer dans plusieurs genres à la fois. Ainsi, Kyle Balda a dû réalisé un film faisant partie des genres Adventure, Animation, Comedy et Family, lui permettant d'être classé dans plusieurs genres. 
 De plus, le dataset ne présente qu'une partie des films réalisés entre 1900 et 2020. Ainsi, ces résultats ne concernent que les réalisateurs et genres présents dans ce dataset.
+
+
+---
+
+
+Maintenant que nous avons déterminer les réalisateurs les plus populaires par genre cinématographique, on peut se demander quels sont les genres les plus populaires.
+
+En ajoutant la popularité de l'ensemble des films de même genre, on obtient un bar chart représentant la popularité de l'ensemble des films du dataset, répartie par genre. 
+
+```{r sum_popularity_by_genre}
+sum_pop <- c()
+i <- 1
+for (genre in genre_list) {
+  sum_pop[i] <- sum((data %>%
+                         select(genres, popularity) %>%
+                         filter(grepl(genre, genres)))$popularity)
+  i <- i+1
+}
+
+pop_by_genre <- data.frame(genre = genre_list, popularity = sum_pop)
+pop_by_genre <- pop_by_genre %>%
+  arrange(desc(popularity))
+```
+
+```{r bar_chart_popularity_by_genre}
+pop_by_genre %>%
+  mutate(name = fct_reorder(genre, popularity)) %>%
+  ggplot( aes(x=name, y=popularity)) +
+    geom_bar(stat="identity", fill="#69b3a2", alpha=.6, width=.4) +
+    coord_flip() +
+    xlab("") +
+    theme_bw() + 
+    labs(x = "Genre", y = "Popularité", 
+       title = "Popularité totale des films par genres")
+```
+
+On remarque donc que les genres semblant les plus populaires sont les drames, les films d'action, d'aventure, les comédies et les thrillers.
+
+Néanmoins, cette représentation peut être biaisée par le choix des films présents sur le dataset. On peut donc réaliser une distribution (box plot) de la popularité des films par genre. En raison du nombre important de genres présents, le graphique boîte à moustache sera divisé en 3 selon la popularité maximale atteinte dans chaque genre. Avant d
+
+```{r data_popularity_by_genre}
+data_pop <- data %>% select(genres, popularity)
+genre_film <- c()
+pop_film <- c()
+j <- 1
+
+for (i in 1:4803) {
+  for (genres_list in genres[i]) {
+    for (genre in genres_list) {
+      genre_film[j] <- genre
+      pop_film[j] <- data_pop$popularity[i]
+      j <- j+1
+    }
+  }
+}
+
+data_genre_and_pop <- data.frame(genre=genre_film, popularity=pop_film)
+view(data_genre_and_pop)
+```
+
+```{r data_pop_max_by_genre}
+pop_max <- c()
+i <- 1
+for (genre in genre_list) {
+  pop_max[i] <- max((data %>%
+                         select(genres, popularity) %>%
+                         filter(grepl(genre, genres)))$popularity)
+  i <- i+1
+}
+
+pop_max_by_genre <- data.frame(genre = genre_list, popularity = pop_max)
+pop_max_by_genre <- pop_max_by_genre %>%
+  arrange(desc(popularity))
+```
+
+Ainsi, le premier graphique contient les genres dont la popularité maximale est supérieure à 500. 
+
+```{r graph_popularity_by_genre1}
+data_genre_and_pop1 <- data_genre_and_pop %>%
+  filter(data_genre_and_pop$genre %in% pop_max_by_genre$genre[pop_max_by_genre$popularity > 500])
+
+box_plot_pop1 <- ggplot(data = data_genre_and_pop1, aes(x = genre, y = popularity)) +
+    geom_boxplot(fill = "orange", color = "black", size = 0.3) +  
+    stat_summary(fun = "mean", geom = "point", shape = 20, size = 1.5, color = "brown4") +
+    labs(x = "Genres", y = "Popularité", title = "Distribution de la popularité par genre de film") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+plotly_plot1 <- ggplotly(box_plot_pop1, tooltip = c())
+plotly_plot1
+```
+
+
+```{r graph_popularity_by_genre2}
+data_genre_and_pop2 <- data_genre_and_pop %>%
+  filter(data_genre_and_pop$genre %in% pop_max_by_genre$genre[(pop_max_by_genre$popularity < 500) & (pop_max_by_genre$popularity > 101)])
+
+box_plot_pop2 <- ggplot(data = data_genre_and_pop2, aes(x = genre, y = popularity)) +
+    geom_boxplot(fill = "orange", color = "black", size = 0.3) +  
+    stat_summary(fun = "mean", geom = "point", shape = 20, size = 2, color = "brown4") +
+    labs(x = "Genres", y = "Popularité", title = "Distribution de la popularité par genre de film") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+plotly_plot2 <- ggplotly(box_plot_pop2, tooltip = c())
+plotly_plot2
+```
+
+```{r graph_popularity_by_genre3}
+data_genre_and_pop3 <- data_genre_and_pop %>%
+  filter(data_genre_and_pop$genre %in% pop_max_by_genre$genre[pop_max_by_genre$popularity < 101])
+
+box_plot_pop3 <- ggplot(data = data_genre_and_pop3, aes(x = genre, y = popularity)) +
+    geom_boxplot(fill = "orange", color = "black", size = 0.3) +  
+    stat_summary(fun = "mean", geom = "point", shape = 20, size = 2, color = "brown4") +
+    labs(x = "Genres", y = "Popularité", title = "Distribution de la popularité par genre de film") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+plotly_plot3 <- ggplotly(box_plot_pop3, tooltip = c())
+plotly_plot3
+```
 
 
 ### Analyse des tendances temporelles
