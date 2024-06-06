@@ -795,6 +795,164 @@ On constate que les genres les plus populaires sont les films d'action, d'aventu
 
 ### Analyse des tendances temporelles
 
+Analysons désormais les différentes tendances temporelles.
+
+Nous allons tout d'abord nous intéresser à l'évolution du budget et des revenus des films au fil du temps. Nous nous attendons à ce que plus on remonte le temps, et plus le budget et les revenus soient bas, ce qui correspondrait au développement ces dernières années du cinéma. 
+
+Pour cette question, un dashboard interactif a été créé. Il permet sur une première page à l'utilisateur de choisir la plage d'années qu'il souhaite étudier, puis de consulter des statistiques sur le budget et le revenu. Deux diagrammes interactifs de type boxplot permettent de voir la distribution du budget et des revenus des films se situant dns la période choisie. 
+Sur une seconde page, l'utilisateur peut visualiser l'évolution du budget, des revenus et des bénéfices en fonction du temps.
+Pour tous les graphiques du dashboard (et ceux que nous présentons sur le rapport), nous faisons le choix d'écarter les individus où le budget et les revenus sont à 0$, car nous considérons qu'il s'agit d'anomalies. 
+De plus, il nous semble important de calculer les bénéfices des films. Nous avons choisi pour cela de déduire des revenus le budget du film, pour obtenir à peu près les bénéfices. 
+Enfin, comme nous souhaitons voir l'évolution, nous avons décider de grouper les films par année de production, puis de calculer soit la moyenne par année, soit la médiane. Ce choix de métrique s'effectue directement depuis le dashboard. Là encore, le diagramme est interactif afin de donner de la liberté à l'utilisateur pour qu'il explore les données. 
+
+Des screenshots des deux pages du dashboard ont été réalisés pour être montrés dans ce rapport, mais nous détaillerons ensuite les différents graphiques en les rendant accessibles directement depuis ce rapport. L'utilisateur peu se rendre directement dans le dossier shiny pour manipuler le dashboard s'il le souhaite.
+
+![Dashboard 1](data/dashboard_1.png)
+![Dashboard 2](data/dashboard_2.png)
+
+Regardons tout d'abord la distribution du budget et des revenus à l'aide d'un boxplot.
+
+```{r distribution_budget_revenu}
+filtered_data <- data
+filtered_data$year <- format(as.Date(filtered_data$release_date), "%Y")
+filtered_data$budget <- ifelse(filtered_data$budget == 0, NA, filtered_data$budget)
+filtered_data$revenue <- ifelse(filtered_data$revenue == 0, NA, filtered_data$revenue)
+
+
+budget_ggplot <- ggplot(data = filtered_data, aes(y = budget/1e6, x = 1)) +
+  geom_boxplot(fill = 'skyblue') +
+  labs(title = "Distribution du budget", y = "Budget (en Millions de $)", x="") +
+  theme_gray() +
+  scale_y_continuous(labels = dollar_format(suffix = "M")) +
+  stat_summary(fun = "mean", geom = "point", shape = 20, size = 2, color = "darkblue")
+
+revenue_ggplot <- ggplot(data = filtered_data, aes(y = revenue/1e6, x=1)) +
+  geom_boxplot(fill = 'skyblue') +
+  labs(title = "Distribution des revenus", y = "Revenus (en Millions de $)", x="") +
+  theme_gray() +
+  scale_y_continuous(labels = dollar_format(suffix = "M")) +
+  stat_summary(fun = "mean", geom = "point", shape = 20, size = 2, color = "darkblue")
+
+
+budget_plotly <- ggplotly(budget_ggplot) %>% layout(xaxis = list(showticklabels = FALSE))
+revenue_plotly <- ggplotly(revenue_ggplot) %>% layout(xaxis = list(showticklabels = FALSE))
+
+budget_plotly
+revenue_plotly
+
+```
+
+**Analyse**
+
+Nous pouvons voir ici les distributions du budget et des revenus dans notre jeu de données.
+
+On constate que la médiane du budget est de 23 Millions de dollars alors que celle des revenus est de presque 52 Millions de dollars. La moyenne (représentée par un point bleu sur les graphiques) s'élève quant-à-elle à 117 Millions de dollars pour les revenus et 37 Millions pour le budget. 
+
+On s'attend donc à ce que la courbe d'évolution des revenus sur le prochain graphique soit plus élevée que celle du budget. 
+Nous allons ici afficher le graphique où les films sont regroupés par année, et où pour chaque année, la moyenne du budget, des revenus et des bénéfices est affichée.
+Le graphique suivant est aussi interacif. Il est donc possible de zoomer sur certaines parties, et d'afficher ou non les différentes courbes. 
+
+Comme il s'agit de l'étude d'une évolution avec des données temporelles, nous choisissons de réaliser un line graph.
+
+
+```{r evolution_budget_revenu}
+
+filtered_data <- data
+filtered_data$year <- format(as.Date(filtered_data$release_date), "%Y")
+filtered_data$benefices <- ifelse(
+  filtered_data$revenue == 0 | filtered_data$budget == 0,
+  NA,
+  filtered_data$revenue - filtered_data$budget
+)
+filtered_data$revenue <- ifelse(filtered_data$revenue == 0, NA, filtered_data$revenue)
+filtered_data$budget <- ifelse(filtered_data$budget == 0, NA, filtered_data$budget)
+
+modified_data <- filtered_data %>%
+  group_by(year) %>%
+  summarise(
+    modified_budget = mean(budget, na.rm = TRUE),
+    modified_revenue = mean(revenue, na.rm = TRUE),
+    modified_benefices = mean(benefices, na.rm = TRUE)
+  )
+
+modified_data$year <- as.numeric(modified_data$year)
+
+p <- ggplot(data = modified_data, aes(x = year)) +
+  geom_line(aes(y = modified_budget, color = 'Budget')) +
+  geom_line(aes(y = modified_revenue, color = 'Revenus')) +
+  geom_line(aes(y = modified_benefices, color = 'Bénéfices')) +
+  scale_color_manual(name="", values=c("Budget"="red", "Revenus"="blue", "Bénéfices"="darkgreen"))+
+  labs(title = "Évolution des bénéfices, du budget et des revenus des films dans le temps",
+       x = "Date (par année)",
+       y = "Montant moyen ($)") +
+  theme_gray()
+
+ggplotly(p) %>%
+  layout(legend = list(
+    orientation = 'h',
+    x = 0.5,
+    y = -0.2,
+    xanchor = 'center',
+    yanchor = 'top'
+  ))
+
+```
+
+
+**Analyse**
+
+Ce graphique nous donne plusieurs informations intéressantes.
+
+Tout d'abord, on constate bien que le budget moyen est nettement inférieur aux revenus et bénéfices moyens, ce qui est en accord avec ce qui a été dit précédemment. Ces disparités soulignent une belle rentabilité de l'industrie cinématographique. 
+
+Ensuite, on relève, que ce soit pour le budget, les revenus ou les bénéfices, que globalement ils augmentent au fil des années. Cela s'explique en partie par le développement au cours du temps des différentes technologies au service du cinéma, qui permettent de réaliser des films plus facilement. Par exemple, l'arrivée des effets spéciaux dans le cinéma comme la technique des "images de synthèse 3D" présente dans Jurassic Park réalisé en 1992, permet de créer des films de plus en plus impressionnants, attirant toujours plus de monde. Cependant, toute cette technologie a un coût, ce qui explique l'augmentation du budget ces dernières années. En outre, grâce à la mondialisation, on assite à une expansion des marchés, ce qui permet de distribuer les films au niveau mondial et ainsi d'augmenter les revenus globaux. 
+
+Enfin, on constate également sur ce graphique des fluctuations importantes à certaines dates. On peut émettre l'hypothèse que cela pourrait être dû aux tendances du marché ou à la situation économique, cependant nous pensons aussi qu'il pourrait s'agir d'annnées où un film "blockbuster" est sorti, jouant fortement sur le calcul de la moyenne. Cela est d'autant plus vrai pour les films d'avant 1980, peu représentés dans le dataset. Pour vérifier notre hypohèse, nous allons donc afficher les pics observés en 1927, 1937, 1939 et 1942.
+
+
+```{r infos_budget_revenu}
+
+selected_films <- filtered_data %>%
+  filter(format(as.Date(release_date), "%Y") %in% c("1927", "1937", "1939", "1942")) %>%
+  drop_na(release_date, title, director, revenue, budget, benefices) %>%
+  select(release_date, title, director, revenue, budget, benefices) %>%
+  arrange(release_date)
+
+selected_films %>%
+  mutate(
+    release_date = format(release_date, "%Y-%m-%d"),
+    revenue = scales::dollar(revenue),
+    budget = scales::dollar(budget),
+    benefices = scales::dollar(benefices)
+  ) %>%
+  kable("html", caption = "Détails des années ayant des données sortant du lot") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
+                full_width = F, 
+                position = "center")
+
+```
+
+
+Tout d'abord, intéressons nous à l'année 1927. Le film recensé est Metropolis de Fritz Lang. Lors de sa sortie, il s'agissait du film le plus cher de l'histoire du cinéma, ce qui explique le pic de budget de 1927. Cependant, il s'avère que ce film a été un véritable échec critique et commercial, ce qui explique son gros déficit. Il est à noter tout de même que Metropolis a été amélioré et restauré plusieurs fois, et c'est pour cela qu'il est très connu.
+
+Arrêtons-nous désormais sur l'année 1937. Cette dernière est synonyme de la sortie du film "Blanche Neige est les 7 nains" de David Hand. C'est le premier long-métrage d'animation des studios Disney. Il regorge d'innovations techniques et artistiques pour l'époque, ce qui le rend mondialement connu. Il continu de générer d'importants revenus encore aujourd'hui, ce qui explique le pic important présent sur le graphique.
+
+En 1939, le film américain "Autant en emporte le vent" de Victor Fleming sort. Il remporte 8 Oscars en 1940, ce qui le propulse au devant de la scène. Le performance des acteurs du film lui permet de devir un incontournable du 7ème art, générant ainsi des revenus élevés. 
+
+Pour finir, en 1942, le film "Bambi" de David Hand est responsable du pic des bénéfices observés. Il s'agit de nouveau d'un long-métrage des studios Disney, qui se distingue cette fois-ci par un style graphique exceptionnel pour l'époque. Les scènes sont extrêmement détaillées et colorées, rendant les décors et les personnages très réalistes. "Bambi" est d'ailleurs propoulsé en 2008 à la 3ème place du classement "AFI's 10 Top 10". Il est aujourd'hui encore très visionné. 
+
+On peut donc confirmer que les pics observés correspondent à la sortie de films particulèrement appréciés (ou inverse), en émettant tout de même une réserve due à la quantité de données faibles pour les années antérieures à 1980. Néanmoins, si l'on analyse très rapidement d'autres fluctuations importantes plus récentes, on se rend compte que les blockbusters influent fortement le calcul : 
+- 1965 : "The Sound of Music" de Robert Wise
+- 1977 : "Star Wars" de	George Lucas
+- 1990 : "Pretty Woman" de Garry Marshall 
+- 2012 : "The Avengers" de Joss Whedon, "The Dark Knight Rises" de Christopher Nolan et "The Hobbit" de	Peter Jackson
+- 2016 : 	"Captain America" de Anthony Russo et "The Secret Life of Pets"	de Chris Renaud
+
+
+Nous avons ainsi pu analyser dans cette partie les tendances temporelles de l'évolution du budget et des revenus des films.
+
+---
+
 Nous examinons l'évolution de la durée des films au fil du temps dans le but de déterminer si elle présente une tendance croissante ou décroissante. Étant donné que la date de sortie et la durée des films sont toutes deux des variables quantitatives continues, et que notre objectif est d'étudier une évolution, l'utilisation du graphique en ligne semble être une approche pertinente pour représenter ces données.
 
 ```{r}
