@@ -22,6 +22,8 @@ library(prettydoc)
 library(stringr)
 library(tidyverse)
 library(plotly)
+library(kableExtra)
+library(scales)
 ```
 
 ```{r data}
