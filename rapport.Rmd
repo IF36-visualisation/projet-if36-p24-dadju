@@ -972,6 +972,7 @@ Un prétraitement assez important est nécessaire avant de créer la carte. En e
 
 
 ```{r film_revenus_par_pays}
+movies_data <- data
 
 country_coords <- read.csv("data/countries_codes_and_coordinates.csv")
 colnames(country_coords) <-
@@ -1041,7 +1042,7 @@ leaflet(max_revenue_per_country) %>%
 
 ```
 
-
+---
 
 ```{r film_budget_par_pays}
 
