@@ -24,6 +24,9 @@ library(tidyverse)
 library(plotly)
 library(kableExtra)
 library(scales)
+library(leaflet)
+library(countrycode)
+library(htmltools)
 ```
 
 ```{r data}
@@ -239,7 +242,7 @@ Commençons par analyser le budget, qui est une variable quantitative continue, 
 ```{r analyse budget}
 ggplot(data = data, mapping = aes(x = budget)) +
   geom_histogram(bins = 60, fill = "#69b3a2") +
-  labs(title = "Analyse de la répartition du budget attribué aux films",
+  labs(title = "Répartition du budget attribué aux films",
        x = "Budget attribué",
        y = "Nombre d'occurrences")
 ```
@@ -957,6 +960,186 @@ On peut donc confirmer que les pics observés correspondent à la sortie de film
 
 
 Nous avons ainsi pu analyser dans cette partie les tendances temporelles de l'évolution du budget et des revenus des films.
+
+
+---
+
+Maintenant que nous avons vu les tendances temporelles du budget et des revenus, nous pouvons nous demander quel film a généré le plus de revenus par pays de production, et quel film a demandé le plus de budget. L'idée ici est de voir si les pays réputés pour avoir de gros studios de production sont vraiment ceux créant des "blockbuster" ou non. Nous nous attendons à ce que ce soit globalement le cas. Aussi, nous aimerions vérifier si les pays qui ont les films avec les plus gros budget sont les mêmes que ceux qui ont les plus gros revenus.
+
+Comme beaucoup de pays sont recensés dans notre dataset, nous avons choisi de créer deux "map" interactives (une pour les revenus, une pour le budget), afin de laisser l'utilisateur zoomer à sa guise sur la carte. Pour aider à la lecture, nous ajoutons une échelle de couleur pour les deux cartes selon les revenus et les budgets.
+
+Un prétraitement assez important est nécessaire avant de créer la carte. En effet, nous commençons par nettoyer la liste des pays de production (un film peut avoir plusieurs pays de production), puis nous gardons pour chaque pays seulement le film qui a généré le plus de revenus (ou budget pour la 2ème map). Nous supprimons les films qui ont des revenus (ou un budget) de 0$ car nous les considérons comme des anomalies. Ensuite, nous effectuons une jointure avec un autre dataset afin de récupérer les coordonnées géographiques et d'obtenir la correspondance des pays avec les codes pays "2 lettres" (la table est jointe sur ce code). Pour finir, nous pouvons créer la carte avec la librairie leaflet, en veillant à réaliser une échelle de couleur et à la préciser en légende. Chaque rond possède un léger contour noir pour bien distinguer les points. Nous avons jugé l'échelle de couleur plus pertinente que l'échelle de taille, car cela permet de ne pas surchager le graphique. 
+
+
+```{r film_revenus_par_pays}
+
+country_coords <- read.csv("data/countries_codes_and_coordinates.csv")
+colnames(country_coords) <-
+  c("country", "alpha_2_code", "alpha_3_code", "numeric_code", "lat", "lon")
+country_coords$alpha_2_code <- trimws(country_coords$alpha_2_code)
+
+clean_countries <- function(countries) {
+  cleaned <- gsub("[^A-Z]", "", countries)
+  return(cleaned)
+}
+
+movies_data$production_countries <-
+  gsub("\\[|\\]", "", movies_data$production_countries)
+movies_data <- movies_data %>%
+  separate_rows(production_countries, sep = ", ") %>%
+  filter(production_countries != "") %>%
+  mutate(production_countries = clean_countries(production_countries))
+
+max_revenue_per_country <- movies_data %>%
+  group_by(production_countries) %>%
+  slice_max(order_by = revenue, n = 1) %>%
+  filter(revenue != 0) %>%
+  ungroup()
+
+max_revenue_per_country <- max_revenue_per_country %>%
+  left_join(country_coords, by = c("production_countries" = "alpha_2_code")) %>%
+  select(title, revenue, production_countries, release_date, country, lat, lon)
+
+title_box <- tags$div(class = "info legend",
+                      tags$h4("Films ayant généré les plus gros revenus par pays"),)
+
+palette <- colorNumeric(palette = "YlOrRd", domain = max_revenue_per_country$revenue)
+leaflet(max_revenue_per_country) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    ~ lon,
+    ~ lat,
+    radius = 6,
+    stroke = TRUE,
+    color = "black",
+    weight = 1,
+    opacity = 1,
+    fillColor = ~ palette(revenue),
+    fillOpacity = 1,
+    popup = ~ paste(
+      "<strong>Titre :</strong>",
+      title,
+      "<br><strong>Revenus :</strong> $",
+      scales::comma(revenue),
+      "<br><strong>Date :</strong>",
+      release_date,
+      "<br><strong>Pays :</strong>",
+      country
+    ),
+    label = ~ paste(country)
+  ) %>%
+  addLegend(
+    "bottomright",
+    pal = palette,
+    values = ~ revenue,
+    title = "Revenus",
+    labFormat = labelFormat(prefix = "$"),
+    opacity = 1
+  ) %>%
+  addControl(position = "topright",
+             html = title_box)
+
+```
+
+
+
+```{r film_budget_par_pays}
+
+max_budget_per_country <- movies_data %>%
+  group_by(production_countries) %>%
+  slice_max(order_by = budget, n = 1) %>%
+  filter(budget != 0) %>%
+  ungroup()
+
+max_budget_per_country <- max_budget_per_country %>%
+  left_join(country_coords, by = c("production_countries" = "alpha_2_code")) %>%
+  select(title, budget, production_countries, country, lat, lon, release_date)
+
+title_box <- tags$div(class = "info legend",
+                      tags$h4("Films ayant nécessité le plus gros budget par pays"),)
+
+palette <-
+  colorNumeric(palette = "YlOrRd", domain = max_budget_per_country$budget)
+leaflet(max_budget_per_country) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    ~ lon,
+    ~ lat,
+    radius = 6,
+    stroke = TRUE,
+    color = "black",
+    weight = 1,
+    opacity = 1,
+    fillColor = ~ palette(budget),
+    fillOpacity = 1,
+    popup = ~ paste(
+      "<strong>Titre :</strong>",
+      title,
+      "<br><strong>Budget :</strong> $",
+      scales::comma(budget),
+      "<br><strong>Date :</strong>",
+      release_date,
+      "<br><strong>Pays :</strong>",
+      country
+    ),
+    label = ~ paste(country)
+  ) %>%
+  addLegend(
+    "bottomright",
+    pal = palette,
+    values = ~ budget,
+    title = "Budget",
+    labFormat = labelFormat(prefix = "$"),
+    opacity = 1
+  ) %>%
+  addControl(position = "topright",
+             html = title_box)
+```
+
+
+**Analyse**
+
+Si l'on regarde la carte des revenus, on constate que les Etats-Unis, le Royaume Uni, le Japon, la Nouvelle-Zélande et la Chine sortent particulièrement du lot avec leur film à plus haut revenus.
+
+La présence de ces pays n'est pas étonnante, puisque de grands studios de production sont présents dans ces derniers, comme WingNut Films (NZ), Bray (UK), Hengdian World Studios (Chine), 20th Century Fox (US). Cette visualisation est ainsi en accord avec ce que l'on pensait : les pays réputés pour avoir de gros studios de production sont ceux créant des “blockbuster”. 
+
+Si l'on s'intéresse maintenant à la carte des budgets, on constate que les différences sont moins nettes que sur la carte précédente. Cependant, on peut observer quelques similarités avec une carte de développement des pays. En effet, l'Europe de l'Ouest, les Etats-Unis, le Canada, le Japon, l'Australie et la Nouvelle Zélande ont des budgets maximums élevés, et sont aussi des pays très développés. Au contraire, le Nigéria, le Liban, le Kazakhstan ou encore les pays d'Amérique du Sud, ont des budgets maximums moins élevés, et sont également des pays moins développés. On peut ainsi penser que l'indice de développement des pays peut représenter un facteur jouant dans le montant maximum des budgets attribués aux films. Certains pays dérogent à cette association, comme c'est le cas de l'Inde. Cependant, ce pays est reconnu pour dans le cinéma pour "Bollywood" et son industrie s'exportant dans le monde entier, ce qui peut expliquer le budget élevé.
+
+Aussi, nous voulions vérifier que les pays avec les revenus élevés sont les mêmes que ceux avec ayant un budget élevé. Après comparaison des deux cartes, il est difficile de conclure sur cette interrogation. Nous réalisons donc un graphique supplémentaire pour étudier si il y a une corrélation entre ces deux points. Pour cela, nous faisons un scatter plot interactif après avoir créé un nouveau dataset regroupant pour chaque pays le budget et les revenus maximums.  
+
+Pour pousser l'étude un peu plus loin, nous associons ce nouveau dataset à un autre qui regroupe l'indicateur de développement humain en 2017 par pays. Nous allons encoder l'IDH par la couleur sur le graphique suivant. Nous pourrons ainsi confirmer les propos ci-dessus.  
+
+```{r film_correlation_budget_revenus_max}
+hdi <- read.csv("data/HDI.csv")
+hdi <- hdi %>%
+  rename(country = Country, indicator_hdi = X2017) %>%
+  select(country, indicator_hdi)
+
+merged_budget_revenue <- merge(max_budget_per_country, max_revenue_per_country, by = c("country"))
+merged_budget_revenue <- left_join(merged_budget_revenue, hdi, by = "country")
+merged_budget_revenue$text <- paste("Pays :", merged_budget_revenue$country, "<br>Budget :", round(merged_budget_revenue$budget)/1e6, "M", "<br>Revenus :", round(merged_budget_revenue$revenue/1e6), "M", "<br>IDH :", merged_budget_revenue$indicator_hdi)
+
+ggplotly(ggplot(data = merged_budget_revenue, aes(x = revenue/1e6, y = budget/1e6, text = text, color = indicator_hdi)) +
+  geom_point() +
+  labs(title = "Corrélation entre le Budget et les Revenus par pays",
+       y = "Budget (en Millions $)",
+       x = "Revenus (en Millions $)") +
+  theme_minimal() +
+  theme_gray() + 
+  scale_color_gradient(low = "yellow", high = "red",name = "IDH"),
+  tooltip = "text")
+
+```
+
+Pour ce qui est de l'IDH, on constate bien que plus le budget est élevé et plus l'IDH a tendance à être haut, ce qui correspond à ce que l'on avait identifié avant.  
+
+Grâce à ce graphique, on constate qu'il semble bel et bien y avoir un lien, et que les pays avec les revenus élevés sont en général les mêmes que ceux avec ayant un budget élevé. Même s'il ne s'agit pas d'une regression linéaire franche, on observe quand même que les pays avec un film ayant généré beaucoup de revenus, sont aussi les pays où un film s'est vu octroyer un budget important. 
+
+Ce type de visualisation nous a permis d'effectuer une comparaison plus simplement qu'en regardant les deux cartes, le scatter plot est donc concluant dans notre cas. Il serait intéressant d'également récupérer d'autres indicateurs que l'IDH pour voir si d'autres éléments entrent en jeu. Par exemple, nous pouvons penser à la beauté ou le côté atypique des paysages des différents pays. En effet, le choix des décors naturels importe très certainement lorsque l'on veut choisir un pays de production. Cela dépend également du type de film réalisé. Peut être que pour certains films, c'est plus le développement technologique de la ville qui va entrer en jeu. La beauté de tel ou tel paysage étant somme toute assez subjective, il est difficile de créer un réel indicateur pour faire une étude sur ce point. 
+
+Dans cette partie, nous avons pu voir quel film a généré le plus de revenus par pays de production, et quel film a demandé le plus de budget. Nous avons montré que les pays réputés pour avoir de gros studios de production sont ceux créant des "blockbuster"et que les pays qui ont les films avec les plus gros budget sont globalement les mêmes que ceux qui ont les plus gros revenus.
+
+
 
 ---
 
