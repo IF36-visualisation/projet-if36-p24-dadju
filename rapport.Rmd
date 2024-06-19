@@ -29,6 +29,8 @@ library(countrycode)
 library(htmltools)
 library(viridis)
 library(RColorBrewer)
+library(tm)
+library(wordcloud)
 ```
 
 ```{r data}
