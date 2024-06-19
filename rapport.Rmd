@@ -27,6 +27,8 @@ library(scales)
 library(leaflet)
 library(countrycode)
 library(htmltools)
+library(viridis)
+library(RColorBrewer)
 ```
 
 ```{r data}
@@ -1279,9 +1281,9 @@ Cela nous amène à une nouvelle question qui est de savoir le nombre de films r
 
 Attente : On s’attend à avoir les États-Unis pour avoir réalisé le plus de films chaque année du fait qu’ils soient très présents sur des périodes émergentes de la cinématographie et à une hausse de production de films dans les années 2000.
 
-Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables utilisées, telles que la compagnie de production et la date, sont respectivement des variables qualitatives nominales et quantitatives continues. 
+Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables utilisées, telles que le pays de production et la date, sont respectivement des variables qualitatives nominales et quantitatives continues. 
 
-Au cours du prétraitement, nous avons constaté la présence de textes JSON dans la variable de compagnie de production. De ce fait, nous avons créer une fonction pour nettoyer la colonne. Ensuite, nous devons compter le nombre de fois qu’un pays intervient dans la réalisation d’un film à une année donnée et le représenter.
+Au cours du prétraitement, nous avons constaté la présence de textes JSON dans la variable de pays de production. De ce fait, nous avons créer une fonction pour nettoyer la colonne. Ensuite, nous devons compter le nombre de fois qu’un pays intervient dans la réalisation d’un film à une année donnée et le représenter.
 
 ```{r Fonction pour nettoyer la colonne en ne gardant que les lettres majuscules}
 clean_countries <- function(countries) {
@@ -1317,6 +1319,7 @@ films_par_pays_par_annee <- films_par_pays_par_annee %>%
 ```{r creation du graphique du nombre de films réalisés par pays et par année }
 plot_interactif <- ggplot(films_par_pays_par_annee, aes(x = as.numeric(year), y = nombre_de_films, fill = production_countries)) +
   geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Paired")+
   labs(x = "Année", y = "Nombre de films réalisés", fill = "Pays", title = " Nombre de films réalisés par pays et par année ") +
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -1330,3 +1333,421 @@ plotly_plot
 On remarque qu’effectivement, ce sont les États-Unis qui réalisent le plus de films sur les années. Aussi, on constate que la production des films a doublé à partir de l’année 1997 et triplé à partir des années 2000.
 Les espaces vides présents sur le graphique peuvent s’expliquer par le manque de valeurs à ces instants. De plus, le graphique ne représente que les pays qui ont réalisé plus de 5 films sur une année donnée pour éviter la surcharge et obtenir une meilleure visibilité car avant les années 1960, les pays producteurs réalisaient moins de 5 films par année.
 Même si la prépondérance des Etats-Unis est notable, il convient de souligner qu'à partir des années 2000, les pays producteurs se diversifient.
+
+Pour la suite de notre analyse, nous allons maintenant mettre l'accent sur les compagnies de production. En effet, nous allons chercher à savoir si elles ont varié leur genre de films au fil du temps. Pour ce faire, nous avons jugé qu'il serait plus intéressant de nous concentrer sur les compagnies ayant produit le plus de films, étant donné le nombre important de compagnies de production. Pour cela, nous avons réalisé au préalable un graphique à barres affichant le nombre de films produits par compagnie de production et par année.
+
+Attente : Nous nous attendons à ce que les compagnies de production américaines aient produit le plus de films au fil des années, étant donné le nombre important de pays producteurs de films. 
+
+Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables utilisées, telles que la compagnie de production et la date, sont respectivement des variables qualitatives nominales et quantitatives continues.
+
+Durant la rédaction du code, nous avons filtré le dataset de sorte qu’il ne contienne que les compagnies de production ayant réalisé plus de 5 films, afin de rendre le graphique plus lisible et compréhensible.
+
+
+```{r création du graphique du nombre de films réalisés par compagnie de production et par année }
+country_data <- data %>%
+  mutate(release_date = as.Date(release_date))
+country_data <- country_data %>%
+  mutate(production_companies = strsplit(gsub("\\[|\\]|'", "", production_companies), ", "))
+country_data <- country_data %>%
+  unnest_longer(production_companies)
+count_data <- country_data %>%
+  group_by(year = year(release_date), companies = production_companies) %>%
+  summarize(count = n()) %>%
+  ungroup()
+count_data_filtered <- count_data %>%
+  group_by(companies, year) %>%
+  filter(sum(count) > 5)
+plot_interactif <- ggplot(count_data_filtered, aes(x = year, y = count, fill = companies)) +
+  geom_bar(stat = "identity") + 
+  labs(title = "Nombre de films produits par compagnie de production et par année",
+       x = "Année",
+       y = "Nombre de films") +
+  theme_minimal() 
+plotly_plot <- ggplotly(plot_interactif, tooltip = c())
+plotly_plot
+```
+
+
+**Analyse**
+
+Il ressort de ce graphique que ce sont principalement les compagnies de production américaines, notamment Universal Pictures, Warner Bros., Paramount Pictures et New Line Cinema, qui ont réalisé le plus de films au fil du temps. Nous recensons également des compagnies françaises, telles que Canal+.
+
+Maintenant que nous connaissons les compagnies qui produisent le plus de films, nous allons examiner si elles ont varié leurs genres de films au fil du temps. Pour ce faire, nous allons réaliser un graphique à barres groupées qui nous permettra de comparer les genres de films utilisés par compagnie de production au cours du temps.
+
+Attente : Nous nous attendons à ce que ces compagnies élargissent leur champ de genres de films, notamment pour être en lien avec la tendance du marché, et produire des films qui répondent aux désirs des spectateurs.
+
+Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables utilisées, telles que la compagnie de production et le genre de films sont des variables qualitatives nominales et la date est une variable quantitative continue. 
+
+Pendant la rédaction du code, nous avons fusionné les lignes contenant « Science » et « Fiction » séparément pour former le genre « Science-fiction ». Ensuite, nous avons créé une fonction pour tracer un graphique à barres groupées des trois genres de films les plus populaires pour une compagnie donnée. Cela nous permet de connaître les genres les plus en vogue à cette période et de faire des comparaisons avec d'autres années.
+
+```{r prétraitement et création d’une fonction qui réalise le graphique du top 3 des genres de films par compagnie de production tous les 5 ans }
+movies_df <- movies_df %>%
+  mutate(release_date = as.Date(release_date, format = "%Y-%m-%d")) %>%
+  filter(!is.na(release_date)) %>%
+  mutate(year = year(release_date))
+movies_df <- movies_df %>%
+  mutate(genres = strsplit(as.character(genres), " "),
+         production_companies = strsplit(gsub("\\[|\\]|'", "", production_companies), ", "))
+movies_exploded <- movies_df %>%
+  unnest_longer(genres) %>%
+  unnest_longer(production_companies)
+movies_exploded <- movies_exploded %>%
+  mutate(genres = ifelse(genres == "Science" | genres == "Fiction", "Science Fiction", genres))
+movies_exploded <- movies_exploded %>%
+  filter(genres != "",production_companies != "")
+genre_trend <- movies_exploded %>%
+  group_by(year, production_companies, genres) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = genres, values_from = count, values_fill = list(count = 0))
+plot_genre_trends <- function(company_name, data) {
+  if (!company_name %in% data$production_companies) {
+    print(paste("No data available for", company_name))
+    return(NULL)
+  }
+  company_data <- data %>%
+    filter(production_companies == company_name) %>%
+    select(-production_companies)
+  company_data_long <- company_data %>%
+    pivot_longer(cols = -year, names_to = "genre", values_to = "count")
+  company_data_top3 <- company_data_long %>%
+    group_by(year) %>%
+    top_n(3, count) %>%
+    ungroup()
+  intervalles <- seq(1900, 2020, by = 5)  
+  plot_interactif <- ggplot(company_data_top3, aes(x = (cut(as.numeric(year), breaks = intervalles)), y = count, fill = genre)) +
+    geom_bar(stat = "identity", position = position_dodge()) +
+    labs(title = paste("Top 3 Genre Trends Over Time for", company_name),
+         x = "Year",
+         y = "Number of Films") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  plotly_plot <- ggplotly(plot_interactif, tooltip = c("year", "genre", "count"))
+  plotly_plot
+}
+```
+
+Nous allons réaliser les graphiques de trois compagnies en nous concentrant sur les années de début, de fin, ainsi que les années ayant les chiffres les plus élevés. Nous allons commencer par la compagnie :
+
+#Walt Disney Pictures est une grande compagnie de production cinématographique américaine fondée en 1923 par Walt Disney et Roy O. Disney. Elle produit des films en prises de vues réelles, souvent orientés vers des publics familiaux et jeunes, incluant des franchises populaires comme "Pirates des Caraïbes".
+
+```{r création du graphique du top 3 des genres de films pour Walt Disney Pictures tous les 5 ans }
+plot_genre_trends('Walt Disney Pictures', genre_trend)
+
+```
+
+**Analyse**
+
+Nous constatons que :
+Entre 1935 et 1940, Walt Disney Pictures a principalement produit des films d'aventure, familiaux et musicaux.
+
+De 2000 à 2005, la compagnie a connu un pic de production de films familiaux, suivis par des films d'aventure et des comédies. En parallèle, il y a également eu des films de science-fiction, fantastiques, dramatiques, d'action et d'animation.
+
+Entre 2015 - 2020, Le genre fantastique se distingue également avec une forte représentation dans la production de cette période, suivis par des films d'aventure, de famille. La limitation du nombre de genres observés pourrait être attribuée à un manque de données dans le jeu de données, ce qui ne permet pas de capturer toute la diversité des genres produits par la compagnie durant cette période.
+
+En conclusion, l'analyse des productions de Walt Disney Pictures révèle une prédominance des films familiaux, suivis par les films d'aventure et de comédie. Les genres fantastique et musical sont également bien représentés. La diversité des genres produits par la compagnie est notable, bien que les films familiaux restent les plus fréquents sur l'ensemble du dataset. Les limitations de données peuvent restreindre la capture complète de la diversité des genres produits par la compagnie.
+
+
+Ensuite, nous allons continuer avec la compagnie Warner Bros. 
+Warner Bros. est un grand studio de cinéma et de télévision fondé en 1923. Il produit une large gamme de films, incluant des genres comme l'action, le fantastique, la comédie, le drame, l'animation, et la science-fiction. Il est connu pour des franchises populaires telles que "Harry Potter", "Batman", et "Matrix".
+
+```{r création du graphique du top 3 des genres de films pour Warner Bros. Pictures tous les 5 ans }
+plot_genre_trends('Warner Bros.', genre_trend)
+
+```
+
+**Analyse**
+
+Nous constatons que :
+Entre 1930-1935, Warner Bros. se lance dans la production de films et s'accentue sur la réalisation de films de genre comédie, musique et romance. 
+
+Entre 1935-1940, ce sont les films de genres action, guerre, aventure et drame qui ont été réalisés, marquant un changement par rapport aux genres des années précédentes.
+
+Entre 2005-2010, la compagnie a réalisé davantage de films de drame et de thriller, puis des films de crime et de science-fiction, en plus des genres précédents. 
+
+Entre 2010-2015, Warner Bros. se concentre principalement sur les films de drame et de science-fiction, tout en incluant des films de genre romantique et les genres des années précédentes.
+
+En conclusion, l'évolution des genres de films produits par Warner Bros. au fil des décennies reflète une adaptation aux tendances et aux attentes du marché cinématographique. Ainsi, elle a démontré une capacité à évoluer et à répondre aux changements des goûts du public, tout en maintenant une diversité dans ses genres de films au fil des décennies.
+
+
+Enfin, nous allons terminer avec la compagnie Canal+.
+Canal+ est une chaîne de télévision française, fondée en 1984, qui a débuté la production de films en 1990. Elle est connue pour produire une variété de genres de films, notamment des comédies, des drames, des films d'action, des thrillers et des films d'auteur. Canal+ joue un rôle important dans le soutien et la promotion du cinéma.
+
+```{r création du graphique du top 3 des genres de films pour Canal+ sur tous les 5 ans }
+plot_genre_trends('Canal+', genre_trend)
+
+```
+
+**Analyse**
+
+Entre 1990-1995, Canal+ a réalisé des films de divers genres pour s'insérer dans l’industrie cinématographique. Les genres les plus produits sont l'aventure et la science-fiction. À côté de ces genres dominants, ils ont également produit des films de guerre, d’action, de comédie, de crime, de drame, de fantastique, de romance et de thriller.
+
+Entre 2005-2010, Canal+ a continué à réaliser de nombreux films, avec une hausse notable dans le genre dramatique. D'autres genres produits incluent les films historiques, de famille et de drame.
+
+Entre 2010-2015, le genre dramatique a de nouveau connu un pic important. Les films d’action et de thriller ont également été produits en grand nombre. D'autres genres présents sont les films criminels, d’horreur, de mystère et de science-fiction.
+
+Cette analyse montre que Canal+ a diversifié sa production de films au fil du temps, en adaptant ses choix de genres pour répondre aux tendances du marché et aux attentes des spectateurs.
+
+Après ces différentes comparaisons malgré différents pays de production, nous comprenons donc que ces compagnies cherchent non seulement à élargir leur type de genre de films mais aussi se conformer à la tendance du marché. Etant donné que la plupart produisent les mêmes genres de films à un moment donné et ne cherchent qu’à générer et à augmenter leurs profits.
+
+
+
+###Analyse des mots employés dans les films
+
+Dans cette partie, nous allons chercher à savoir si certains mots-clés ressortent dans les films d'une compagnie de production particulière ou pour un réalisateur donné, et peut-être déterminer s'il existe un lien avec les pays de production.
+
+Dans un premier temps, nous allons vérifier s'il existe réellement certains mots-clés qui ressortent des compagnies de production. Étant donné que nous souhaitons simplement identifier les mots-clés fréquents dans les films, nous avons choisi de visualiser ces mots sous forme de nuage de mots. Cela permet de les afficher avec une taille et une couleur particulière, les rendant distincts les uns des autres. Les mots les plus fréquents apparaîtront en plus grande taille.
+
+Attente : Nous nous attendons à ce qu'il y ait des mots-clés utilisés par les compagnies de production et les réalisateurs comme une marque de fabrique dans les films où ils ont été impliqués. Cependant, nous anticipons moins de liens par rapport aux pays de production.
+
+Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables utilisées, telles que les compagnies de production, les pays de production, les mots-clés et les réalisateurs sont des variables qualitatives nominales.
+
+Durant la rédaction du code, nous avons effectué un prétraitement des colonnes et créé des fonctions pour tracer des nuages de mots des mots-clés pour chaque compagnie, réalisateur et pays de production.
+
+```{r Prétraitement des colonnes production_company, production_countries, director }
+clean_countries <- function(countries) {
+  cleaned <- gsub("[^A-Z]", "", countries)
+  return(cleaned)
+}
+movies_df <- movies_df %>%
+  mutate(keywords = strsplit(gsub("\\[|\\]|'", "", keywords), " "),
+         production_companies = strsplit(gsub("\\[|\\]|'", "", production_companies), ", "),
+         director = gsub("\\[|\\]|'", "", director),
+         production_countries= gsub("\\[|\\]|'", "", production_countries)) %>%
+  separate_rows(production_countries, sep = ", ") %>%
+  filter(production_countries != "")
+movies_exploded <- movies_df %>%
+  unnest_longer(keywords) %>%
+  unnest_longer(production_companies)%>%
+  unnest_longer(production_countries)
+```
+
+```{r Fonction pour tracer un wordcloud des mots-clés pour une compagnie de production donne }
+top_keywords_by_company <- function(company_name, data) {
+    excluded_keywords <- c("novel", "and", "of", "on", "based", "love", "new", "the")
+company_data <- data[data$production_companies == company_name, ]
+   keywords <- unlist(company_data$keywords)
+   corpus <- Corpus(VectorSource(keywords))
+    corpus <- tm_map(corpus, content_transformer(tolower))
+    corpus <- tm_map(corpus, removePunctuation)
+    corpus <- tm_map(corpus, stripWhitespace)
+    corpus <- tm_map(corpus, removeWords, excluded_keywords)
+    tdm <- TermDocumentMatrix(corpus)
+    m <- as.matrix(tdm)
+    word_freq <- sort(rowSums(m), decreasing = TRUE)
+    d <- data.frame(word = names(word_freq), freq = word_freq)
+    top_keywords <- head(d, 100)
+    wordcloud(words = top_keywords$word, freq = top_keywords$freq, random.order = FALSE, rot.per = 0.3, 
+              scale = c(4, 0.5), max.words = 100, colors = brewer.pal(8, "Dark2"))
+   title(main = paste("Word Cloud -", company_name), font.main = 1, cex.main = 1.5)
+  }
+```
+
+Nous allons commencer par la compagnie Walt Disney Pictures.
+
+```{r création du graphique de Walt Disney Pictures }
+ top_keywords_by_company('Walt Disney Pictures', movies_exploded)
+
+```
+
+**Analyse**
+
+Nous constatons qu'aucun mot ne désigne spécifiquement une marque de fabrique pour cette compagnie. Toutefois, le langage des mots-clés est axé sur des films de genres musique, famille (friend, family) et fantastique (witch, fairy, princess, magic, queen, hero…), indiquant une orientation vers un public jeune (teenage).
+
+Pour confirmer cette observation, nous avons réalisé un graphique à barres montrant les mots les plus fréquents associés à cette compagnie.
+
+```{r Fonction pour obtenir un bar plot des mots-clés les plus fréquents pour une compagnie de production donnée}
+  top_keywords_by_company_barplot <- function(company_name, data, top_n = 10) {
+  excluded_keywords <- c("novel", "and", "of", "on", "based", "love", "new", "the") 
+  company_data <- data %>%
+    filter(production_companies == company_name)
+  keywords <- unlist(company_data$keywords)
+  keywords <- keywords[!is.na(keywords)]
+  keywords <- keywords[!keywords %in% excluded_keywords]
+  keyword_counts <- table(keywords)
+  most_common_keywords <- sort(keyword_counts, decreasing = TRUE)[1:top_n]
+  top_keywords_df <- data.frame(keyword = names(most_common_keywords), frequency = as.numeric(most_common_keywords))
+  plot <- ggplot(top_keywords_df, aes(x = reorder(keyword, frequency), y = frequency, fill = keyword)) +
+    geom_bar(stat = "identity") +
+    scale_fill_viridis_d(option = "viridis") +  
+    labs(title = paste("Top 10 Mots-Clés pour", company_name),
+         x = "Mots-Clés",
+         y = "Fréquence") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  return(plot)
+}
+```
+
+```{r création du graphique de Walt Disney Pictures }
+plot <- top_keywords_by_company_barplot('Walt Disney Pictures', movies_exploded)
+print(plot)
+
+```
+
+**Analyse**
+Nous voyons bien que tous ses mots-clés reflètent des mots des films de genres musique, famille et fantastique.
+
+
+Ensuite, nous avons réalisé le nuage de mots pour la compagnie Warner Bros.
+
+```{r creation du graphique de Warner Bros. }
+  top_keywords_by_company('Warner Bros., movies_exploded)
+```
+
+Nous constatons qu’elle n’a pas de mot désignant une marque de fabrique mais plutôt un langage de mots axé sur des films de genre science-fiction, drame, guerre, thriller, crime pour un public très diversifié, allant des enfants aux adultes, en couvrant une large gamme de genres et de styles. Elle s'efforce de répondre aux goûts variés de leur audience mondiale avec des productions allant des blockbusters grand public aux films plus niche et spécialisés.
+
+Pour confirmer cette observation, nous avons réalisé un bar chart montrant les mots les plus fréquents associés à cette compagnie.
+
+```{r creation du graphique de Warner Bros. }
+plot <- top_keywords_by_company_barplot('Warner Bros.', movies_exploded)
+print(plot)
+
+```
+
+**Analyse**
+
+Nous parvenons tout de même à identifier des mots tels que comics, war, et magic, qui reflètent bien le genre de films produits par Warner Bros. Ces mots mettent en évidence l'orientation de la compagnie vers des films de super-héros, de guerre, et de fantastique, confirmant ainsi la diversité de leur catalogue tout en soulignant des thèmes récurrents caractéristiques de leurs productions. 
+
+Enfin, nous avons réalisé le nuage de mots pour la compagnie Canal+.
+
+```{r creation du graphique de Canal+}
+  top_keywords_by_company('Canal+', movies_exploded)
+```
+
+**Analyse**
+
+Nous constatons également que Canal+ n’a pas de mot désignant une marque de fabrique spécifique, mais utilise plutôt un langage de mots axé sur une variété de genres de films, notamment des comédies, des drames, des films d'action, des thrillers et des films d'auteur. De plus, elle joue un rôle important dans le soutien et la promotion du cinéma américain et français.
+
+Pour confirmer cette observation, nous avons réalisé un bar chart montrant les mots les plus fréquents associés à cette compagnie.
+
+```{r creation du graphique de Canal+}
+plot <- top_keywords_by_company_barplot('Canal+', movies_exploded)
+print(plot)
+
+```
+
+**Analyse**
+
+Nous constatons que la compagnie Canal+ utilise une grande variété de mots clés, reflétant une diversité de genres de films, y compris des productions américaines. Cela est compréhensible étant donné qu'elle est une chaîne de production télévisée qui joue un rôle important dans le soutien et la promotion du cinéma.
+.
+
+**Analyse finale des mots employés par les compagnies de production **
+
+En résumé, ces analyses révèlent plusieurs points communs :
+Canal+ utilise une large gamme de mots-clés pour refléter la diversité des genres de films qu'elle produit, y compris la publication de films américains. 
+
+Warner Bros. est identifiable par l'utilisation fréquente de mots-clés tels que "comics", "war", et "magic". Ces termes mettent en lumière l'orientation de la compagnie vers les films de super-héros, de guerre et de fantastique, confirmant ainsi la diversité de leur catalogue et soulignant des thèmes récurrents caractéristiques de leurs productions.
+
+Les mots-clés associés à Walt Disney sont principalement liés aux genres de musique, de famille et de fantastique, reflétant une cohérence thématique dans leurs productions de films.
+
+Ces observations montrent comment les choix de mots-clés peuvent non seulement refléter les genres de films mais aussi dévoiler les orientations stratégiques et thématiques distinctives des compagnies de production cinématographique.
+
+
+Dans un second temps, nous allons chercher à savoir s’il y a réellement certains mots clés qui ressortent des réalisateurs les plus populaires comme George Miller, Christpoher Nolan, Kyle Balda... Pour ce faire, nous nous sommes concentrés sur des graphiques à barres, car nous avons constaté durant notre analyse qu’il n’y avait pas énormément de mots qui ressortaient des réalisateurs. Il serait donc plus intéressant de visualiser la fréquence de ces mots-clés de manière précise et claire.
+
+Attente : Nous nous attendons à ce qu'il y ait des mots-clés propres à chaque réalisateur comme des marques de fabrique indépendamment du genre de films auquel il est associé. 
+
+```{r Fonction pour tracer un barplot des mots-clés pour un realisateur donne }
+top_keywords_by_director_barplot <- function(director_name, data, top_n = 10) {
+  excluded_keywords <- c("novel", "and", "of", "on", "based", "love", "new", "the") 
+  director_data <- data %>%
+    filter(director == director_name)
+  keywords <- unlist(director_data$keywords)
+  keywords <- keywords[!is.na(keywords)]
+  keywords <- keywords[!keywords %in% excluded_keywords]
+  keyword_counts <- table(keywords)
+  most_common_keywords <- sort(keyword_counts, decreasing = TRUE)[1:top_n]
+  top_keywords_df <- data.frame(keyword = names(most_common_keywords), frequency = as.numeric(most_common_keywords))
+  plot <- ggplot(top_keywords_df, aes(x = reorder(keyword, frequency), y = frequency, fill = keyword)) +
+    geom_bar(stat = "identity") +
+    scale_fill_viridis_d(option = "magma") +  # Utiliser la palette "viridis"
+    labs(title = paste("Top 10 Mots-Clés pour le réalisateur", director_name),
+         x = "Mots-Clés",
+         y = "Fréquence") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+   return(plot)
+}
+``` 
+
+Nous allons commencer par le réalisateur George Miller.
+
+```{r Tracer pour 'George Miller'}
+plot_director <- top_keywords_by_director_barplot('George Miller', movies_exploded)
+print(plot_director)
+
+```
+
+**Analyse**
+
+Nous constatons que George Miller n'est pas associé à un mot-clé distinctif mais est plutôt lié aux genres de films auxquels il a contribué, notamment la science-fiction et l'action, comme en témoignent les mots-clés récurrents tels que dystopia, postapocalyptic, et chase dans ce dataset.
+
+Les "after-credits stingers" sont devenus un moyen populaire pour les cinéastes de maintenir l'engagement du public, de créer des attentes pour les suites, et d’ajouter une couche supplémentaire de storytelling. Ils encouragent également les spectateurs à rester jusqu'à la fin du générique, honorant ainsi le travail de toute l'équipe du film.
+
+
+Enfin, nous avons réalisé un graphique à barres pour le réalisateur Christopher Nolan.
+
+```{r Tracer pour 'Christopher Nolan'}
+plot_director <- top_keywords_by_director_barplot('Christopher Nolan', movies_exploded)
+print(plot_director)
+
+```
+
+**Analyse**
+Nous constatons aussi que Christopher Nolan n'est pas associé à un mot-clé distinctif mais est plutôt lié aux genres de films auxquels il a contribué, notamment la science-fiction, l'aventure et de drame, comme en témoignent les mots-clés récurrents tels que comics, secret, crime, fighter, dans ce dataset.
+
+
+**Analyse finale des mots employés par les réalisateurs**
+
+En résumé, notre analyse montre que Christopher Nolan et George Miller ne sont pas étroitement associés à des mots-clés spécifiques, mais plutôt aux genres de films auxquels ils ont contribué. Tous deux sont particulièrement liés à la science-fiction, avec des éléments récurrents tels que "comics" pour Nolan et "dystopia" pour Miller. Ils partagent également une implication dans des genres comme l'action et le drame, indiquant une certaine diversité thématique malgré l'absence de mot-clé distinctif pour chacun. Ces constats mettent en lumière leurs influences marquantes dans le paysage cinématographique contemporain, tout en reflétant leur capacité à explorer divers aspects narratifs et visuels au sein de leurs œuvres.
+
+
+Enfin, nous allons explorer si ces mots-clés sont liés aux pays de production. Nous avons donc créé des nuages de mots pour analyser les termes les plus fréquemment utilisés par les États-Unis et la France, en lien avec notre étude.
+
+Attente : Bien que cette analyse ne soit pas très pertinente, nous cherchons à savoir s'il pourrait exister des liens des liens avec les pays de production.
+
+```{r Fonction pour tracer un wordcloud des mots-clés pour un pays producteur donne }
+  top_keywords_by_countries <- function(countries_name, data) {
+    excluded_keywords <- c("novel", "and", "of", "on", "based", "love", "new", "the") 
+    countries_data <- data[data$production_countries == countries_name, ]
+    keywords <- unlist(countries_data$keywords)
+    corpus <- Corpus(VectorSource(keywords))
+    corpus <- tm_map(corpus, content_transformer(tolower))
+    corpus <- tm_map(corpus, removePunctuation)
+    corpus <- tm_map(corpus, stripWhitespace)
+    corpus <- tm_map(corpus, removeWords, excluded_keywords)
+    tdm <- TermDocumentMatrix(corpus)
+    m <- as.matrix(tdm)
+    word_freq <- sort(rowSums(m), decreasing = TRUE)
+    d <- data.frame(word = names(word_freq), freq = word_freq)
+    top_keywords <- head(d, 100)
+    wordcloud(words = top_keywords$word, freq = top_keywords$freq, random.order = FALSE, rot.per = 0.3, 
+              scale = c(4, 0.5), max.words = 100, colors = brewer.pal(8, "Dark2"))
+    title(main = paste("Word Cloud -", countries_name), font.main = 1, cex.main = 1.5)
+  }
+```
+
+Nous allons commencer par les États-Unis pour effectuer cette analyse.
+
+```{r Tracer pour 'US'}
+      top_keywords_by_countries('US', movies_exploded)
+```
+
+
+**Analyse**
+
+Pour le pays de production américain, nous constatons que les mots les plus fréquents retrouvés dans les nuages de mots des États-Unis sont similaires à ceux retrouvés dans les compagnies de production américaines. Cependant, cette observation n'a pas été très intéressante car elle n'a fourni aucune information pertinente.
+
+
+Nous terminons notre analyse avec la France.
+
+```{r Tracer pour 'FR'}
+      top_keywords_by_countries('FR', movies_exploded)
+```
+
+
+**Analyse**
+
+Pour le pays de production français, nous observons aussi que les mots les plus fréquents retrouvés dans les nuages de mots de la France sont similaires à ceux retrouvés dans les compagnies de production françaises et américaines étant donné son rôle dans la promotion des films. Cependant, cette observation n'a pas été très intéressante car elle n'a fourni aucune information pertinente.
+
+
