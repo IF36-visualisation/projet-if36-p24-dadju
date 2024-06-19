@@ -1428,7 +1428,7 @@ plot_genre_trends <- function(company_name, data) {
 
 Nous allons réaliser les graphiques de trois compagnies en nous concentrant sur les années de début, de fin, ainsi que les années ayant les chiffres les plus élevés. Nous allons commencer par la compagnie :
 
-#Walt Disney Pictures est une grande compagnie de production cinématographique américaine fondée en 1923 par Walt Disney et Roy O. Disney. Elle produit des films en prises de vues réelles, souvent orientés vers des publics familiaux et jeunes, incluant des franchises populaires comme "Pirates des Caraïbes".
+Walt Disney Pictures est une grande compagnie de production cinématographique américaine fondée en 1923 par Walt Disney et Roy O. Disney. Elle produit des films en prises de vues réelles, souvent orientés vers des publics familiaux et jeunes, incluant des franchises populaires comme "Pirates des Caraïbes".
 
 ```{r création du graphique du top 3 des genres de films pour Walt Disney Pictures tous les 5 ans }
 plot_genre_trends('Walt Disney Pictures', genre_trend)
@@ -1491,7 +1491,7 @@ Après ces différentes comparaisons malgré différents pays de production, nou
 
 
 
-###Analyse des mots employés dans les films
+### Analyse des mots employés dans les films
 
 Dans cette partie, nous allons chercher à savoir si certains mots-clés ressortent dans les films d'une compagnie de production particulière ou pour un réalisateur donné, et peut-être déterminer s'il existe un lien avec les pays de production.
 
