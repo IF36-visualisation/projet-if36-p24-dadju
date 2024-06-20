@@ -1614,7 +1614,7 @@ Nous parvenons tout de même à identifier des mots tels que comics, war, et mag
 
 Enfin, nous avons réalisé le nuage de mots pour la compagnie Canal+.
 
-```{r creation du graphique de Canal+}
+```{r creation du graphique de Canal+ 1}
   top_keywords_by_company('Canal+', movies_exploded)
 ```
 
@@ -1624,7 +1624,7 @@ Nous constatons également que Canal+ n’a pas de mot désignant une marque de 
 
 Pour confirmer cette observation, nous avons réalisé un bar chart montrant les mots les plus fréquents associés à cette compagnie.
 
-```{r creation du graphique de Canal+}
+```{r creation du graphique de Canal+ 2}
 plot <- top_keywords_by_company_barplot('Canal+', movies_exploded)
 print(plot)
 
