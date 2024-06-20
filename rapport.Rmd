@@ -1548,7 +1548,7 @@ company_data <- data[data$production_companies == company_name, ]
 
 Nous allons commencer par la compagnie Walt Disney Pictures.
 
-```{r création du graphique de Walt Disney Pictures }
+```{r création du graphique de Walt Disney Pictures 1}
  top_keywords_by_company('Walt Disney Pictures', movies_exploded)
 
 ```
@@ -1582,7 +1582,7 @@ Pour confirmer cette observation, nous avons réalisé un graphique à barres mo
 }
 ```
 
-```{r création du graphique de Walt Disney Pictures }
+```{r création du graphique de Walt Disney Pictures 2}
 plot <- top_keywords_by_company_barplot('Walt Disney Pictures', movies_exploded)
 print(plot)
 
@@ -1594,7 +1594,7 @@ Nous voyons bien que tous ses mots-clés reflètent des mots des films de genres
 
 Ensuite, nous avons réalisé le nuage de mots pour la compagnie Warner Bros.
 
-```{r creation du graphique de Warner Bros. }
+```{r creation du graphique de Warner Bros. 1}
   top_keywords_by_company('Warner Bros.', movies_exploded)
 ```
 
@@ -1602,7 +1602,7 @@ Nous constatons qu’elle n’a pas de mot désignant une marque de fabrique mai
 
 Pour confirmer cette observation, nous avons réalisé un bar chart montrant les mots les plus fréquents associés à cette compagnie.
 
-```{r creation du graphique de Warner Bros. }
+```{r creation du graphique de Warner Bros. 2}
 plot <- top_keywords_by_company_barplot('Warner Bros.', movies_exploded)
 print(plot)
 
@@ -1675,7 +1675,7 @@ top_keywords_by_director_barplot <- function(director_name, data, top_n = 10) {
 
 Nous allons commencer par le réalisateur George Miller.
 
-```{r Tracer pour 'George Miller'}
+```{r Tracer pour George Miller}
 plot_director <- top_keywords_by_director_barplot('George Miller', movies_exploded)
 print(plot_director)
 
@@ -1690,7 +1690,7 @@ Les "after-credits stingers" sont devenus un moyen populaire pour les cinéastes
 
 Enfin, nous avons réalisé un graphique à barres pour le réalisateur Christopher Nolan.
 
-```{r Tracer pour 'Christopher Nolan'}
+```{r Tracer pour Christopher Nolan}
 plot_director <- top_keywords_by_director_barplot('Christopher Nolan', movies_exploded)
 print(plot_director)
 
@@ -1732,7 +1732,7 @@ Attente : Bien que cette analyse ne soit pas très pertinente, nous cherchons à
 
 Nous allons commencer par les États-Unis pour effectuer cette analyse.
 
-```{r Tracer pour 'US'}
+```{r Tracer pour US}
       top_keywords_by_countries('US', movies_exploded)
 ```
 
@@ -1744,7 +1744,7 @@ Pour le pays de production américain, nous constatons que les mots les plus fr�
 
 Nous terminons notre analyse avec la France.
 
-```{r Tracer pour 'FR'}
+```{r Tracer pour FR}
       top_keywords_by_countries('FR', movies_exploded)
 ```
 
