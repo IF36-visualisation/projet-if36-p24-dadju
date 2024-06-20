@@ -1383,7 +1383,8 @@ Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables
 Pendant la rédaction du code, nous avons fusionné les lignes contenant « Science » et « Fiction » séparément pour former le genre « Science-fiction ». Ensuite, nous avons créé une fonction pour tracer un graphique à barres groupées des trois genres de films les plus populaires pour une compagnie donnée. Cela nous permet de connaître les genres les plus en vogue à cette période et de faire des comparaisons avec d'autres années.
 
 ```{r prétraitement et création d’une fonction qui réalise le graphique du top 3 des genres de films par compagnie de production tous les 5 ans }
-movies_df <- data %>%
+movies_df <- read_csv("data/movies.csv")
+movies_df <- movies_df %>%
   mutate(release_date = as.Date(release_date, format = "%Y-%m-%d")) %>%
   filter(!is.na(release_date)) %>%
   mutate(year = year(release_date))
@@ -1506,8 +1507,7 @@ Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables
 Durant la rédaction du code, nous avons effectué un prétraitement des colonnes et créé des fonctions pour tracer des nuages de mots des mots-clés pour chaque compagnie, réalisateur et pays de production.
 
 ```{r Prétraitement des colonnes production_company, production_countries, director }
-data <- 'movies.csv'
-movies_df <- read.csv(data)
+movies_df <- read_csv("data/movies.csv")
 clean_countries <- function(countries) {
   cleaned <- gsub("[^A-Z]", "", countries)
   return(cleaned)
