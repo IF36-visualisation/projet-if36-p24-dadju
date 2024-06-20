@@ -511,7 +511,7 @@ ggplot(data_dirpop1, aes(x=as.factor(id), y=popularity, fill=genre)) +
   geom_segment(data=grid_data, aes(x = end, y = 200, xend = start, yend = 200), 
                colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
   
-  annotate("text", x = rep(max(data_dirpop1$id),4), y = c(200, 400, 600, 800), 
+  ggplot2::annotate("text", x = rep(max(data_dirpop1$id),4), y = c(200, 400, 600, 800), 
            label = c("200", "400", "600", "800") , color="grey", size=2.8 , 
            angle=0, fontface="bold", hjust=0.9) +
   
@@ -579,7 +579,7 @@ ggplot(data_dirpop2, aes(x=as.factor(id), y=popularity, fill=genre)) +
   geom_segment(data=grid_data, aes(x = end, y = 100, xend = start, yend = 100), 
                colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
   
-  annotate("text", x = rep(max(data_dirpop2$id),4), y = c(100, 200, 300, 400), 
+  ggplot2::annotate("text", x = rep(max(data_dirpop2$id),4), y = c(100, 200, 300, 400), 
            label = c("100", "200", "300", "400") , color="grey", size=2.8 , angle=0, 
            fontface="bold", hjust=0.8) +
   
@@ -648,7 +648,7 @@ ggplot(data_dirpop3, aes(x=as.factor(id), y=popularity, fill=genre)) +
   geom_segment(data=grid_data, aes(x = end, y = 20, xend = start, yend = 20), 
                colour = "grey", alpha=1, size=0.3, inherit.aes = FALSE ) +
   
-  annotate("text", x = rep(max(data_dirpop3$id),4), y = c(20, 40, 60, 80), 
+  ggplot2::annotate("text", x = rep(max(data_dirpop3$id),4), y = c(20, 40, 60, 80), 
            label = c("20", "40", "60", "80") , color="grey", size=3, angle=0, 
            fontface="bold", hjust=1.6) +
   
