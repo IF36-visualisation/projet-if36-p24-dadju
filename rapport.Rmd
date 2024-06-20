@@ -150,6 +150,10 @@ Nous pourrons ici analyser plusieurs features en regard des dates de sortie du f
 
 - Est-ce qu’il y a une évolution de la durée des films dans le temps ?
 
+-Est-ce qu'il y'a un lien entre le budget d'un film et sa durée?
+
+-Est-ce qu'il y'a une différence de la durée des films dans chaque pays?
+
 - Est-ce que les maisons de production ont varié le genre de leurs films au fil du temps ?
 
 ### Analyse des mots employés pour décrire le film
@@ -684,7 +688,6 @@ remarque Elizabeth Banks, Rob Marshall et Ron Clements, populaires dans les film
 Les résulats obtenus nous permettent de percevoir les réalisateurs les plus populaires par genre cinématographique. Ils permettent également de faire une première déduction des genres les plus populaires du dataset. Néanmoins, on peut remarquer qu'en raison des multiples genres définis pour chaque film, la popularité de certains films permet à leurs réalisateurs de se démarquer dans plusieurs genres à la fois. Ainsi, Kyle Balda a dû réalisé un film faisant partie des genres Adventure, Animation, Comedy et Family, lui permettant d'être classé dans plusieurs genres. 
 De plus, le dataset ne présente qu'une partie des films réalisés entre 1900 et 2020. Ainsi, ces résultats ne concernent que les réalisateurs et genres présents dans ce dataset.
 
-
 ---
 
 
@@ -800,6 +803,67 @@ plotly_plot3
 
 **Analyse**
 On constate que les genres les plus populaires sont les films d'action, d'aventure, d'animation, familiale, de science-fiction et de fantasy. Néanmoins, certains genres un peu moins populaires comme les comédies et les drames comprennent quelques films à très grand popularité, là où la popularité des films d'action, est moins importante, mais plus constante. Enfin, on remarque que les documentaires et les films étrangers ont une popularité globalement très faible.
+
+
+Ici, on va s'intéresser à la relation qui existe entre la notre d'un film et le ou les acteurs du film.  Quel est le lien entre les acteurs et la note ou la popularité du film ?
+
+Cette analyse vise à déterminer la relation entre les acteurs et la popularité ou la note attribuée à un film. Nous cherchons à savoir si la présence d'un acteur influence la note ou la popularité du film. La note du film est une variable quantitative continue, et l'acteur est une donnée qualitative nominale de ce fait ,
+Pour étudier la distribution de la note ou de la popularité en fonction des acteurs, la visualisation la plus appropriée est un barplot (diagramme à barres). Le barplot permet de comparer visuellement la note moyenne ou la popularité des films associés à différents acteurs, et d'évaluer s'il existe des différences significatives en fonction des acteurs.
+
+```{r lien film et acteur}
+movies <- data
+# Séparer les noms des acteurs pour chaque film
+movies_separated <- movies %>%
+separate_rows(cast, sep = ", ")
+
+# Extraire uniquement les noms de famille des acteurs
+movies_separated <- movies_separated %>%
+  mutate(cast = str_extract(cast, "\\b\\w+$"))
+
+# Compter les occurrences de chaque acteur et filtrer
+actor_counts <- movies_separated %>%
+  count(cast) %>%
+  arrange(desc(n))
+
+# Choisir le seuil pour les acteurs les plus fréquents (par exemple, ceux qui apparaissent au moins 10 fois)
+frequent_actors <- actor_counts %>%
+  filter(n >= 10) %>%
+  pull(cast)
+# Filtrer les données pour ne garder que les acteurs fréquents
+movies_filtered <- movies_separated %>%
+  filter(cast %in% frequent_actors)
+
+# Trouver le film avec la plus grande note pour chaque acteur
+actor_best_movie <- movies_filtered %>%
+  group_by(cast) %>%
+  slice_max(order_by = vote_average, n = 1, with_ties = FALSE) %>%
+  ungroup() %>%
+  left_join(movies, by = c("cast", "vote_average", "title")) %>% # Pour récupérer les titres des films originaux
+  select(cast, vote_average, title) %>%
+  distinct()
+
+# Création du barplot
+plot_interactif_1 <- ggplot(actor_best_movie, aes(x = reorder(cast, vote_average), y = vote_average, fill = cast, text = paste("Films:", title))) +
+geom_bar(stat = "identity") +
+  scale_fill_viridis_d() +
+  labs(title = "Relation entre les acteurs et les meilleures notes de leurs films",
+       x = "Acteur",
+       y = "Note moyenne") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_flip()
+
+# Conversion en graphique interactif avec plotly
+plotly_plot <- ggplotly(plot_interactif_1, tooltip = "text")
+
+# Affichage du graphique interactif
+plotly_plot
+```
+**Analyse**
+Certains films reçoivent une note moyenne largement supérieure à 5 en raison de la présence d'un acteur célèbre. Cela suggère que l'acteur peut influencer la note attribuée à un film. En effet, plus un acteur est connu, plus le film a de chances de connaître un succès accru. Cette tendance peut s'expliquer par plusieurs facteurs.
+Tout d'abord, l'attraction du public joue un rôle crucial. Les acteurs populaires ont souvent une base de fans fidèles qui peuvent influencer positivement la popularité d'un film. Les fans sont enclins à regarder et à apprécier les films mettant en vedette leurs acteurs préférés, ce qui peut contribuer à des notes plus élevées.
+De plus, les films avec des acteurs célèbres bénéficient généralement d'une meilleure couverture médiatique et de campagnes de marketing plus agressives. Cette visibilité accrue attire un public plus large et peut également contribuer à des notes plus élevées pour le film.
+En conclusion, la présence d'acteurs célèbres semble jouer un rôle significatif dans la perception et la réussite d'un film, influençant à la fois la note attribuée et la réception par le public.
 
 
 ### Analyse des tendances temporelles
@@ -1206,6 +1270,206 @@ plotly_plot
 **Analyse**
 
 Le graphique obtenu offre une vision claire de l'évolution de la durée des films de 1900 à 2020, mettant en évidence une tendance décroissante au fil du temps, confirmée à la fois par la médiane et la distribution des valeurs. Cependant, il est important de noter que le graphique montre également des films avec une durée de 0 minutes, ce qui est peu probable et pourrait être attribué à la présence de valeurs manquantes dans le jeu de données. De plus, des valeurs extrêmes au-dessus du troisième quartile (Q3) et en dessous du premier quartile (Q1) suggèrent la présence potentielle de données aberrantes ou de films qui sortent de la norme. Enfin, il est intéressant de noter que certains films ont une durée d'un peu plus de 14 minutes. Il convient de se demander s'il s'agit réellement de longs métrages ou de courts métrages.
+
+Après s'etre interessé à l'evolution de la durée des films dans le temps et aux autres facteurs de tendance temporelle du film , on va s'intéresser à la relation qui existe entre le budget et la durée d'un film.
+
+Le but de cette analyse est de déterminer la relation entre le budget d'un film et sa durée. Plus précisément, nous voulons savoir si un film dure plus longtemps parce que son budget est important, si un film dure moins longtemps parce que son budget est limité, ou si la durée d'un film est indépendante de son budget.
+
+Pour étudier la relation entre ces deux variables quantitatives continues, la visualisation la plus appropriée est le scatter plot (diagramme de dispersion). Le scatter plot permet de visualiser la corrélation entre le budget(donnée quantitative continue) et la durée des films(donnée quantitative continue), et d'identifier des tendances ou des anomalies dans les données.
+
+
+```{r relation entre le budget et la durée d'un film }
+movies <- data
+# Création de la visualisation avec ggplot2
+plot_interactif_1 <- ggplot(movies, aes(x = budget, y = runtime)) +
+  geom_point(aes(color = budget, size = budget), alpha = 0.7) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(title = "Relation entre le budget et la durée des films",
+       x = "Budget (millions de $)",
+       y = "Durée (minutes)",
+       color = "Budget (millions de $)",
+       size = "Budget (millions de $)") +
+  theme_minimal()
+
+# Conversion du plot ggplot en plotly
+plotly_plot <- ggplotly(plot_interactif_1, tooltip = c("budget", "runtime"))
+plotly_plot
+```
+**Analyse**
+
+Le graphe obtenu montre qu'il existe une corrélation positive entre le budget et la durée d'un film car la durée d'un film augmente proportionnellementavec son budget. Aussi certains films à faibles budgets sont des films dont la durée est  grande par rapport aux autres est ce pour dire que les films à faible budget dure plus qu'un film à grand budget?cette diférence de durée est ce due au fait que les film ne sont pas du meme genre ou est ce du à des contraintes cinématographiques?Ce pendant on remarque que certains films ont un budget de 0$ et une durée de 0 minutes ce qui n'est pas normal
+
+
+#filtrons les données de sorte à ne plus avoir de film avec un budget de 0$
+```{r filtrage des données}
+movies_filtered <- movies %>%
+  filter(budget > 0, runtime > 0, is.finite(budget), is.finite(runtime))
+# Création de la visualisation avec ggplot2
+plot_interactif_1 <- ggplot(movies_filtered, aes(x = budget, y = runtime)) +
+  geom_point(aes(color = budget, size = budget), alpha = 0.7) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(title = "Relation entre le budget et la durée des films",
+       x = "Budget (millions de $)",
+       y = "Durée (minutes)",
+       color = "Budget (millions de $)",
+       size = "Budget (millions de $)") +
+  theme_minimal()
+
+# Conversion du plot ggplot en plotly
+plotly_plot <- ggplotly(plot_interactif_1, tooltip = c("budget", "runtime"))
+plotly_plot
+```
+Vérifions si la durée d'un film varie en fonction du genre 
+Pour cela , créons un diagramme en bar
+
+```{r durée des films en fonction du genre}
+# Extraire les genres et la durée des films
+genres_0 <- movies %>% select(genres, runtime)
+
+# Initialiser une liste pour stocker les genres modifiés
+genres <- list()
+
+# Parcourir chaque ligne pour extraire et corriger les genres
+for (i in 1:nrow(genres_0)) {
+  # Vérifier si la cellule genres n'est pas vide ou NA
+  if (!is.na(genres_0$genres[i]) && genres_0$genres[i] != "") {
+    genres_split <- unlist(str_split(genres_0$genres[i], ' '))
+if ("Science" %in% genres_split) {
+      genres_split <- genres_split[(genres_split != "Science") & (genres_split != "Fiction")]
+      genres_split[length(genres_split) + 1] <- "Science Fiction"
+    }
+    genres[[i]] <- genres_split
+  } else {
+    genres[[i]] <- NULL
+  }
+}
+
+# Ajouter les genres modifiés à un nouveau dataframe
+movies_genres <- data.frame(matrix(ncol = 2, nrow = 0))
+colnames(movies_genres) <- c("genre", "runtime")
+
+for (i in 1:length(genres)) {
+  if (!is.null(genres[[i]]) && length(genres[[i]]) > 0) {
+    for (genre in genres[[i]]) {
+      movies_genres <- rbind(movies_genres, data.frame(genre = genre, runtime = genres_0$runtime[i]))
+    }
+  }
+}
+
+# Calculer la durée moyenne des films par genre
+avg_duration <- movies_genres %>%
+  group_by(genre) %>%
+  summarise(avg_runtime = mean(runtime, na.rm = TRUE)) %>%
+  filter(!is.na(genre))
+
+# Créer le bar plot
+ggplot(avg_duration, aes(x = genre, y = avg_runtime, fill = genre)) +
+  geom_bar(stat = "identity") +
+labs(title = "Durée moyenne des films par genre",
+       x = "Genre",
+       y = "Durée moyenne (en minutes)",
+       fill = "Genre") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+**Analyse**
+Le graphique montre comment la durée moyenne d'un film varie en fonction de son genre. D'après cette visualisation, il existe une corrélation positive entre le budget d'un film et sa durée : les films avec un budget plus élevé tendent à avoir une durée plus longue. Cependant, certains genres de films, tels que les films historiques, d'action et drame, présentent une durée moyenne plus élevée malgré des budgets souvent modestes.
+On peut donc conclure que bien que le budget influence significativement la durée d'un film, d'autres facteurs comme le genre jouent également un rôle important dans la détermination de la durée d'un film.
+
+
+On va maintenant s'intéresser à la  différence significative de la durée des films entre différents pays ?
+
+On cherche à étudier les différences significatives dans la durée des films entre différents pays. L'objectif est de déterminer si la durée des films dans certains pays est significativement supérieure ou inférieure par rapport à d'autres. Ces différences pourraient être liées à diverses contraintes, telles que les lois cinématographiques spécifiques à chaque pays, ou à des problèmes budgétaires.
+
+Pour étudier et comparer la durée des films(donnée quantitative continue) entre différents pays(donnée qualitative nominale), nous utiliserons un boxplot. Le boxplot est un outil graphique efficace pour visualiser la distribution des durées de films et identifier les différences significatives entre les pays.
+
+```{r différence de la durée des films dans différents pays}
+# Fonction pour extraire les codes ISO des pays de production
+extract_iso_codes <- function(json_string) {
+# Parse the JSON string
+  parsed_json <- fromJSON(json_string, simplifyDataFrame = FALSE)
+  
+# Extract the ISO codes
+  iso_codes <- sapply(parsed_json, function(x) x$iso_3166_1)
+  
+  return(iso_codes)
+}
+
+# Extraire les pays de production et la durée des films
+movies <- data
+  mutate(production_countries = lapply(production_countries, extract_iso_codes))
+
+# Ajouter les pays modifiés à un nouveau dataframe
+movies_countries <- data.frame(matrix(ncol = 2, nrow = 0))
+colnames(movies_countries) <- c("country", "runtime")
+
+for (i in 1:nrow(movies)) {
+  if (!is.null(movies$production_countries[[i]]) && length(movies$production_countries[[i]]) > 0) {
+    for (country in movies$production_countries[[i]]) {
+      movies_countries <- rbind(movies_countries, data.frame(country = country, runtime = movies$runtime[i]))
+    }
+  }
+}
+
+# Filtrer les pays qui produisent un nombre significatif de films (au moins 10 films)
+country_counts <- movies_countries %>%
+  group_by(country) %>%
+  summarise(count = n()) %>%
+  filter(count >= 10)
+
+movies_filtered <- movies_countries %>%
+  filter(country %in% country_counts$country)
+
+# Calculer la durée moyenne des films par pays
+avg_runtime_by_country <- movies_filtered %>%
+  group_by(country) %>%
+  summarise(avg_runtime = mean(runtime, na.rm = TRUE))
+
+# Créer le barplot pour la durée moyenne des films par pays
+ggplot(avg_runtime_by_country, aes(x = reorder(country, -avg_runtime), y = avg_runtime, fill = country)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Durée moyenne des films par pays",
+       x = "Pays (Code ISO)",
+       y = "Durée moyenne (en minutes)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# etudions la distribution de cette visualisation avec un boxplot
+
+# Créer le boxplot pour la distribution des durées des films par pays
+plot_interactif_1 <- ggplot(movies_filtered, aes(x = reorder(country, -runtime), y = runtime, fill = country)) +
+  geom_boxplot() +
+  labs(title = "Distribution des durées des films par pays",
+       x = "Pays (Code ISO)",
+       y = "Durée des films (en minutes)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Convertir le graphique ggplot en graphique interactif avec plotly
+plotly_plot <- ggplotly(plot_interactif_1, tooltip = c())
+
+# Afficher le graphique interactif
+plotly_plot
+```
+
+**Analyse**
+
+Le graphique obtenu montre des différences significatives dans la durée des films entre différents pays. Certains pays ont des films dont la durée est notablement supérieure ou inférieure par rapport à d'autres. Plusieurs facteurs peuvent expliquer ces différences :
+
+Censure et Coupures : Dans certains pays, des scènes peuvent être coupées ou censurées pour des raisons culturelles ou religieuses, ce qui réduit ainsi la durée des films.
+
+Adaptation Culturelle : Les films peuvent être modifiés pour mieux correspondre aux préférences culturelles et aux attentes du public local. Cela peut inclure la suppression de scènes jugées peu pertinentes ou inappropriées.
+
+Motivations Commerciales : Certains distributeurs locaux peuvent décider de  modifier la durée des films pour des raisons commerciales, telles que l'adaptation aux créneaux horaires de diffusion ou pour maximiser l'audience.
+
+Ces facteurs montrent l'importance de l'adaptation des films aux contextes locaux et aux attentes du marché.
+
+Par ailleurs, le boxplot révèle que certains pays produisent des films d'une durée de 0 minute. Cela est probablement dû à des données manquantes ou incorrectes dans le jeu de données.
+
+En conclusion, les différences observées dans la durée des films entre différents pays soulignent l'impact des contextes culturels, réglementaires et commerciaux sur la production cinématographique.
+
+
 
 Dans une seconde partie, nous allons chercher à connaitre l’évolution de la popularité des films en fonction des années, car comprendre cette évolution au fil des ans peut fournir des informations précieuses sur les tendances de consommation de médias, les préférences du public et les changements culturels.
 
