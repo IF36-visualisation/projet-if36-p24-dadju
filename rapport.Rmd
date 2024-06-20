@@ -1737,7 +1737,7 @@ Nous allons commencer par les États-Unis pour effectuer cette analyse.
 
 **Analyse**
 
-Pour le pays de production américain, nous constatons que les mots les plus fréquents retrouvés dans les nuages de mots des États-Unis sont similaires à ceux retrouvés dans les compagnies de production américaines. Cependant, cette observation n'a pas été très intéressante car elle n'a fourni aucune information pertinente.
+Pour le pays de production américain, nous constatons que les mots les plus fréquemment retrouvés dans les nuages de mots des États-Unis sont similaires à ceux retrouvés dans les compagnies de production américaines. Toutefois, cette observation s'est révélée peu intéressante, car elle n'a apporté aucune information pertinente, probablement en raison d'un manque de données dans l'ensemble étudié.
 
 
 Nous terminons notre analyse avec la France.
@@ -1749,6 +1749,5 @@ Nous terminons notre analyse avec la France.
 
 **Analyse**
 
-Pour le pays de production français, nous observons aussi que les mots les plus fréquents retrouvés dans les nuages de mots de la France sont similaires à ceux retrouvés dans les compagnies de production françaises et américaines étant donné son rôle dans la promotion des films. Cependant, cette observation n'a pas été très intéressante car elle n'a fourni aucune information pertinente.
-
+Pour la production cinématographique française, nous remarquons aussi que les mots les plus fréquemment présents dans les nuages de mots de la France sont similaires à ceux des compagnies de production françaises et américaines, en raison de son rôle dans la promotion des films. Toutefois, cette observation s'est révélée peu intéressante, car elle n'a apporté aucune information pertinente, probablement en raison d'un manque de données dans l'ensemble étudié.
 
