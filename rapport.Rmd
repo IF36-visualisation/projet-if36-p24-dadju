@@ -1753,3 +1753,58 @@ Nous terminons notre analyse avec la France.
 
 Pour la production cinématographique française, nous remarquons aussi que les mots les plus fréquemment présents dans les nuages de mots de la France sont similaires à ceux des compagnies de production françaises et américaines, en raison de son rôle dans la promotion des films. Toutefois, cette observation s'est révélée peu intéressante, car elle n'a apporté aucune information pertinente, probablement en raison d'un manque de données dans l'ensemble étudié.
 
+
+---
+
+# Conclusion
+
+Pour rappel, ce projet avait pour objectif de réaliser une exploration du monde du cinéma pour découvrir le dessous des films à succès. 
+
+Nous avons découper notre exploration en trois grandes parties : 
+
+- **Analyse du succès des films :** Nous avons essayé dans cette partie de comprendre ce qui pouvait influer la popularité d'un film ou la note qui lui est attribuée. Pour cela, nous avons analysé le budget, les revenus, les réalisateurs populaires ou encore les genres populaires afin de comprendre les "lois" du succès des films.
+
+- **Analyse des tendances temporelles :** Nous avons pu constater ici plusieurs évolutions, telles que l'augmentation du budget et des revenus des films au cours du temps, mais aussi des "blockbusters" qui, certaines années, influent grandement les tendances. Nous avons aussi pu mettre en avant l'apparition de nouveaux genres de films et l'émergence de nouvelles maisons de production. Enfin, nous avons étudié d'autres changements dans le temps tels que le nombre de films présents ou encore la durée de ces derniers.
+
+- **Analyse des mots employés pour décrire le film :** 
+
+
+La principale difficulté de notre jeu de données est l'absence de définition claire de ce que signifie la "popularité". Nous avons donc du choisir nous même une définition nous semblant cohérente. Ensuite, nous avions des disparités de nombre de films selon les années, ce qui rendait l'analyse des tendances  plus délicate pour les années antérieures à 1980. Enfin, une partie des variables de notre dataset était sous format json, ce qui a demandé des prétraitements relativement importants selon les graphiques à réaliser. 
+
+**Eloïse : ** Ce projet a été l'occasion pour moi de découvrir l'application shiny et de créer ainsi un dashboard interactif complet avec lequel l'utilisateur peut intéragir. Il aurait été intéressant de travailler sur un jeu de données plus récent, afin de réellement étudier l'impact de l'apparition des plateformes de streaming dans l'industrie cinématographique, et aussi de voir les effets générés par la période Covid.
+
+**Laure : **
+
+**Gaudeline Maeva : **
+
+**Belvine : **
+
+---
+
+# Annexe
+
+### Eloïse 
+
+Dans ce projet, j'ai eu l'occasion de travailler sur plusieurs parties : 
+
+- L'étude du lien entre note et popularité
+
+- L'étude du lien entre note et budget
+
+- L'étude du lien entre budget et popularité
+
+- L'étude du lien entre budget et revenus
+
+- L'étude de l'évolution du budget et des revenus et des bénéfices des films dans le temps avec la création du dashboard shiny
+
+- L'étude du film par pays qui a généré les plus gros revenus, budget et l'identification du lien entre les 2
+
+- Contribution à la correction des autres parties du code, à la rédaction de l'introduction et de la conclusion
+
+### Laure
+
+
+### Gaudeline Maeva
+
+
+### Belvine
