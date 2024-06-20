@@ -1506,6 +1506,8 @@ Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables
 Durant la rédaction du code, nous avons effectué un prétraitement des colonnes et créé des fonctions pour tracer des nuages de mots des mots-clés pour chaque compagnie, réalisateur et pays de production.
 
 ```{r Prétraitement des colonnes production_company, production_countries, director }
+data <- 'movies.csv'
+movies_df <- read.csv(data)
 clean_countries <- function(countries) {
   cleaned <- gsub("[^A-Z]", "", countries)
   return(cleaned)
