@@ -1855,7 +1855,75 @@ Après ces différentes comparaisons malgré différents pays de production, nou
 
 ### Analyse des mots employés dans les films
 
-Dans cette partie, nous allons chercher à savoir si certains mots-clés ressortent dans les films d'une compagnie de production particulière ou pour un réalisateur donné, et peut-être déterminer s'il existe un lien avec les pays de production.
+Dans cette partie, nous nous interrogerons sur la fréquence des mots-clés utilisés en fonction du genre. Étant donné que ce dataset contient 21 genres distincts, nous pencherons principalement sur les genres Adventure, Fantasy et Science-Fiction. Nous nous attendons à ce que chaque genre utilise des mots-clés d'un même champ lexical ou d'un même univers. 
+
+```{r traitement_keywords}
+library(wordcloud)
+data_keywords <- data %>% select(genres, keywords)
+keywords_list_by_genre <- c()
+j <- 1
+
+for (i in c(2, 3, 4)) {
+  for (j in 1:nrow(data_keywords)) {
+    if (grepl(genre_list[i], data_keywords$genres[j])) {
+      keywords_list_by_genre[i] <- paste(keywords_list_by_genre[i], data_keywords$keywords[j])
+    }
+  }
+}
+```
+
+```{r wordcloud_adventure, warning=FALSE}
+keywords_aventure <- unlist(str_split(keywords_list_by_genre[2], ' '))
+keywords_aventure <- keywords_aventure[keywords_aventure != ""]
+
+layout(matrix(c(1, 2), nrow=2), heights=c(1,25))
+par(mar=rep(0, 4))
+plot.new()
+text(x=0.5, y=0.5, "Nuage des mots-clés des films d'aventure")
+
+set.seed(1234)
+wordcloud(keywords_aventure, max.words = 100, colors=brewer.pal(8, "Dark2"),  rot.per=0)
+```
+
+On remarque que le genre Adventure contient un grand nombre de films en rapport avec les comics, les superhéros et Marvel, la dystopie, la guerre, l'espace et la magie. On peut donc facilement les relier avec des films appartenant au Marvel Cinematic Universe (comics, superhero, marvel), Avatar ou Star Wars (war, space), Harry Potter (magic) et Mad Max ou Hunger Games (dystopia).
+
+
+```{r wordloud_fantasy, warning=FALSE}
+keywords_fantasy <- unlist(str_split(keywords_list_by_genre[3], ' '))
+keywords_fantasy <- keywords_fantasy[keywords_fantasy != ""]
+
+layout(matrix(c(1, 2), nrow=2), heights=c(1,25))
+par(mar=rep(0, 4))
+plot.new()
+text(x=0.5, y=0.5, "Nuage des mots-clés des films fantastiques")
+
+set.seed(1234)
+wordcloud(keywords_fantasy, max.words = 100, colors=brewer.pal(8, "Dark2"),  rot.per=0)
+```
+
+On remarque que les mots-clés se démarquant sont ceux appartenant à un univers fantastique/légendaire (vampire, monster, witch, fairy) ainsi que ceux indiquant des relations (relationship, love, brother, friendship, father). On peut donc en déduire que ces films se concentrent sur des créatures légendaires tout en mettant l'accent sur l'évolution des relations entre personnages qui se créent tout au long du film. Par ailleurs, on peut également constater que beaucoup de ces films du genre Fantasy sont des adaptations de livres (based on a novel).
+
+```{r wordcloud_sciencefiction, warning=FALSE}
+keywords_scifi <- unlist(str_split(keywords_list_by_genre[4], ' '))
+keywords_scifi <- keywords_scifi[keywords_scifi != ""]
+
+layout(matrix(c(1, 2), nrow=2), heights=c(1,25))
+par(mar=rep(0, 4))
+plot.new()
+text(x=0.5, y=0.5, "Nuage des mots-clés des films de science-fiction")
+
+set.seed(1234)
+wordcloud(keywords_scifi, max.words = 100, colors=brewer.pal(8, "Dark2"),  rot.per=0)
+```
+
+On remarque que les films de science-fiction sont pour beaucoup décrits comme une dystopie en rapport avec l'espace, les aliens (mutant, zombie, robot, android) ou le futur (time, artificial, technology, robot). Parmi eux, on peut citer Startrek ou Men In Black (space), Transformers ou Independance day (alien), Le Cinquième Élément (The Fifth Element) ou Avatar (future).
+
+**Analyse**
+À travers ces 3 nuages de mots, on peut constater que les mots-clés décrivent les films d'un même genre avec un champ lexical semblable. On devrait donc être capable de classer les films par genre cinématographique à partir de ces mots-clés.
+
+---
+
+Nous allons ensuite chercher à savoir si certains mots-clés ressortent dans les films d'une compagnie de production particulière ou pour un réalisateur donné, et peut-être déterminer s'il existe un lien avec les pays de production.
 
 Dans un premier temps, nous allons vérifier s'il existe réellement certains mots-clés qui ressortent des compagnies de production. Étant donné que nous souhaitons simplement identifier les mots-clés fréquents dans les films, nous avons choisi de visualiser ces mots sous forme de nuage de mots. Cela permet de les afficher avec une taille et une couleur particulière, les rendant distincts les uns des autres. Les mots les plus fréquents apparaîtront en plus grande taille.
 
