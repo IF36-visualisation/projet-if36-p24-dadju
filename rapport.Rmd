@@ -250,8 +250,9 @@ Commençons par analyser le budget, qui est une variable quantitative continue, 
 ```{r analyse budget}
 ggplot(data = data, mapping = aes(x = budget)) +
   geom_histogram(bins = 60, fill = "#69b3a2") +
+  scale_x_continuous(labels = function(x) sprintf("%.0f M", x / 1e6)) +
   labs(title = "Répartition du budget attribué aux films",
-       x = "Budget attribué",
+       x = "Budget attribué (en M de $)",
        y = "Nombre d'occurrences")
 ```
 
@@ -310,8 +311,8 @@ data_filtered_1 <- subset(data, popularity < 150 & budget != 0)
 ggplot(data = data_filtered_1, aes(x = budget, y = popularity)) +
   geom_point(colour = "darkorange", size = 3, alpha = 0.4) + 
   geom_smooth(method = "lm", se = FALSE, color = "black", linetype = 2) +
-  scale_x_continuous(labels = function(x) x / 1e6) +
-  labs(x = "Budget du film (en millions de dollars)", y = "Popularité", title = "Popularité en fonction du budget des films") +
+  scale_x_continuous(labels = function(x) sprintf("%.0f M", x / 1e6)) +
+  labs(x = "Budget du film (en M de $)", y = "Popularité", title = "Popularité en fonction du budget des films") +
   theme_gray() 
 
 ```
@@ -716,7 +717,7 @@ pop_by_genre <- pop_by_genre %>%
 pop_by_genre %>%
   mutate(name = fct_reorder(genre, popularity)) %>%
   ggplot( aes(x=name, y=popularity)) +
-    geom_bar(stat="identity", fill="#69b3a2", alpha=.6, width=.4) +
+    geom_bar(stat="identity", fill="#69b3a2", width=.4) +
     coord_flip() +
     xlab("") +
     theme_bw() + 
@@ -835,7 +836,6 @@ for (genre in genre_list) {
 budg_rev_by_genre <- data.frame(genre = genre_list, budget = sum_budget, revenue = sum_revenue, nb_films = nb_films, mean_budget = mean_budget, mean_revenue = mean_revenue)
 budg_rev_by_genre <- budg_rev_by_genre %>%
   arrange(desc(revenue))
-view(budg_rev_by_genre)
 ```
 
 ```{r dodge_bar_plot_budget_revenue_total_by_genre}
@@ -952,6 +952,7 @@ plotly_plot <- ggplotly(plot_interactif_1, tooltip = "text")
 # Affichage du graphique interactif
 plotly_plot
 ```
+
 **Analyse**
 Certains films reçoivent une note moyenne largement supérieure à 5 en raison de la présence d'un acteur célèbre. Cela suggère que l'acteur peut influencer la note attribuée à un film. En effet, plus un acteur est connu, plus le film a de chances de connaître un succès accru. Cette tendance peut s'expliquer par plusieurs facteurs.
 Tout d'abord, l'attraction du public joue un rôle crucial. Les acteurs populaires ont souvent une base de fans fidèles qui peuvent influencer positivement la popularité d'un film. Les fans sont enclins à regarder et à apprécier les films mettant en vedette leurs acteurs préférés, ce qui peut contribuer à des notes plus élevées.
@@ -1047,10 +1048,11 @@ p <- ggplot(data = modified_data, aes(x = year)) +
   geom_line(aes(y = modified_budget, color = 'Budget')) +
   geom_line(aes(y = modified_revenue, color = 'Revenus')) +
   geom_line(aes(y = modified_benefices, color = 'Bénéfices')) +
-  scale_color_manual(name="", values=c("Budget"="red", "Revenus"="blue", "Bénéfices"="darkgreen"))+
+  scale_color_manual(name="", values=c("Budget"="red", "Revenus"="blue", "Bénéfices"="darkgreen")) +
+  scale_y_continuous(labels = function(x) sprintf("%.0f M", x / 1e6)) +
   labs(title = "Évolution des bénéfices, du budget et des revenus des films dans le temps",
        x = "Date (par année)",
-       y = "Montant moyen ($)") +
+       y = "Montant moyen (en M de $)") +
   theme_gray()
 
 ggplotly(p) %>%
@@ -1329,7 +1331,7 @@ ggplot(average_runtime_by_year, aes(x = as.numeric(year), y = average_runtime)) 
   geom_point()+
   geom_line(stat="identity", color="darkblue")+
   geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed") +
-  labs(x = "Année ", y = "Durée moyenne des films",title="Evolution de la durée dans le temps") +
+  labs(x = "Année ", y = "Durée moyenne des films (en minutes)",title="Évolution de la durée dans le temps") +
   theme_minimal() +
   theme_gray()
 ```
@@ -1371,7 +1373,7 @@ Le but de cette analyse est de déterminer la relation entre le budget d'un film
 Pour étudier la relation entre ces deux variables quantitatives continues, la visualisation la plus appropriée est le scatter plot (diagramme de dispersion). Le scatter plot permet de visualiser la corrélation entre le budget(donnée quantitative continue) et la durée des films(donnée quantitative continue), et d'identifier des tendances ou des anomalies dans les données.
 
 
-```{r relation entre le budget et la durée d'un film }
+```{r relation entre le budget et la durée dun film }
 movies <- data
 # Création de la visualisation avec ggplot2
 plot_interactif_1 <- ggplot(movies, aes(x = budget, y = runtime)) +
@@ -1393,8 +1395,8 @@ plotly_plot
 Le graphe obtenu montre qu'il existe une corrélation positive entre le budget et la durée d'un film car la durée d'un film augmente proportionnellementavec son budget. Aussi certains films à faibles budgets sont des films dont la durée est  grande par rapport aux autres est ce pour dire que les films à faible budget dure plus qu'un film à grand budget?cette diférence de durée est ce due au fait que les film ne sont pas du meme genre ou est ce du à des contraintes cinématographiques?Ce pendant on remarque que certains films ont un budget de 0$ et une durée de 0 minutes ce qui n'est pas normal
 
 
-#filtrons les données de sorte à ne plus avoir de film avec un budget de 0$
 ```{r filtrage des données}
+#filtrons les données de sorte à ne plus avoir de film avec un budget de 0$
 movies_filtered <- movies %>%
   filter(budget > 0, runtime > 0, is.finite(budget), is.finite(runtime))
 # Création de la visualisation avec ggplot2
@@ -1413,7 +1415,7 @@ plotly_plot <- ggplotly(plot_interactif_1, tooltip = c("budget", "runtime"))
 plotly_plot
 ```
 Vérifions si la durée d'un film varie en fonction du genre 
-Pour cela , créons un diagramme en bar
+Pour cela , créons un diagramme en bar.
 
 ```{r durée des films en fonction du genre}
 # Extraire les genres et la durée des films
@@ -1476,7 +1478,7 @@ On va maintenant s'intéresser à la  différence significative de la durée des
 
 On cherche à étudier les différences significatives dans la durée des films entre différents pays. L'objectif est de déterminer si la durée des films dans certains pays est significativement supérieure ou inférieure par rapport à d'autres. Ces différences pourraient être liées à diverses contraintes, telles que les lois cinématographiques spécifiques à chaque pays, ou à des problèmes budgétaires.
 
-Pour étudier et comparer la durée des films(donnée quantitative continue) entre différents pays(donnée qualitative nominale), nous utiliserons un boxplot. Le boxplot est un outil graphique efficace pour visualiser la distribution des durées de films et identifier les différences significatives entre les pays.
+Pour étudier et comparer la durée des films (donnée quantitative continue) entre différents pays (donnée qualitative nominale), nous utiliserons un boxplot. Le boxplot est un outil graphique efficace pour visualiser la distribution des durées de films et identifier les différences significatives entre les pays.
 
 ```{r différence de la durée des films dans différents pays}
 # Fonction pour extraire les codes ISO des pays de production
@@ -1739,7 +1741,7 @@ Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables
 
 Pendant la rédaction du code, nous avons fusionné les lignes contenant « Science » et « Fiction » séparément pour former le genre « Science-fiction ». Ensuite, nous avons créé une fonction pour tracer un graphique à barres groupées des trois genres de films les plus populaires pour une compagnie donnée. Cela nous permet de connaître les genres les plus en vogue à cette période et de faire des comparaisons avec d'autres années.
 
-```{r prétraitement et création d’une fonction qui réalise le graphique du top 3 des genres de films par compagnie de production tous les 5 ans }
+```{r prétraitement et création dune fonction qui réalise le graphique du top 3 des genres de films par compagnie de production tous les 5 ans }
 movies_df <- read_csv("data/movies.csv")
 movies_df <- movies_df %>%
   mutate(release_date = as.Date(release_date, format = "%Y-%m-%d")) %>%
