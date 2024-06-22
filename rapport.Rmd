@@ -804,6 +804,99 @@ plotly_plot3
 **Analyse**
 On constate que les genres les plus populaires sont les films d'action, d'aventure, d'animation, familiale, de science-fiction et de fantasy. Néanmoins, certains genres un peu moins populaires comme les comédies et les drames comprennent quelques films à très grand popularité, là où la popularité des films d'action, est moins importante, mais plus constante. Enfin, on remarque que les documentaires et les films étrangers ont une popularité globalement très faible.
 
+---
+
+Une fois les genres les plus populaires déterminés, nous pouvons nous pencher sur les revenus générés et le budget demandé pour la production de chaque genre et les comparer. Cela nous permettrait de voir quels sont les genres demandant le plus de budget ou générant le plus de revenus.
+
+Pour cela, on peut tout d'abord déterminer le budget total demandé et le revenu total généré pour chaque genre, en calculant la somme du budget et du revenu généré pour chaque film de chaque genre.
+
+```{r budget_revenue_by_genre}
+sum_revenue <- c()
+sum_budget <- c()
+mean_revenue <- c()
+mean_budget <- c()
+nb_films <- c()
+i <- 1
+for (genre in genre_list) {
+  sum_revenue[i] <- sum((data %>%
+                         select(genres, revenue) %>%
+                         filter(grepl(genre, genres)))$revenue)
+  sum_budget[i] <- sum((data %>%
+                         select(genres, budget) %>%
+                         filter(grepl(genre, genres)))$budget)
+  nb_films[i] <- nrow((data %>%
+                         select(genres, budget) %>%
+                         filter(grepl(genre, genres))))
+  mean_revenue[i] <- sum_revenue[i]/nb_films[i]
+  mean_budget[i] <- sum_budget[i]/nb_films[i]
+  i <- i+1
+}
+
+budg_rev_by_genre <- data.frame(genre = genre_list, budget = sum_budget, revenue = sum_revenue, nb_films = nb_films, mean_budget = mean_budget, mean_revenue = mean_revenue)
+budg_rev_by_genre <- budg_rev_by_genre %>%
+  arrange(desc(revenue))
+view(budg_rev_by_genre)
+```
+
+```{r dodge_bar_plot_budget_revenue_total_by_genre}
+genre_comp <- c()
+budget_revenue <- c()
+value <- c()
+for (i in 1:21) {
+  if ((budg_rev_by_genre$revenue[i] > 10000000000) & (budg_rev_by_genre$budget[i] > 10000000000)) {
+    value[length(value)+1] <- budg_rev_by_genre$budget[i]
+    value[length(value)+1] <- budg_rev_by_genre$revenue[i]
+    genre_comp[length(genre_comp)+1] <- budg_rev_by_genre$genre[i]
+    genre_comp[length(genre_comp)+1] <- budg_rev_by_genre$genre[i]
+    budget_revenue[length(budget_revenue)+1] <- "Budget total"
+    budget_revenue[length(budget_revenue)+1] <- "Revenu total"
+  }
+}
+
+data_by_genre <- data.frame(genre_comp,budget_revenue,value)
+
+ggplot(data_by_genre, aes(fill = budget_revenue, y = as.numeric(value), x = genre_comp)) + 
+    geom_bar(position="dodge", stat="identity") +
+    geom_text(aes(label = sprintf("%.0f", value / 1e9)), position = position_dodge(width=0.9) , vjust = -0.5,  size = 3) +
+    scale_y_continuous(labels = function(x) sprintf("%.0f Mrd", x / 1e9)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(x = "Genre", y = "Budget/revenu total (en Mrd de $)", 
+       title = "Comparaison budget/revenu total par genre",
+       fill = "")
+```
+On distingue 5 genres qui se démarquent par le budget total demandé et le revenu total généré : Action, Adventure, Comedy, Drama et Thriller. Néanmoins, ces valeurs peuvent être biaisées par le nombre de films produits dans chaque genre. On réalise donc un nouveau graphique permettant de comparer le budget moyen et le revenu moyen par genre (et donc pour un film).
+
+```{r dodge_bar_plot_budget_revenue_mean_by_genre}
+genre_comp <- c()
+mean_budget_revenue <- c()
+value <- c()
+for (i in 1:21) {
+  if ((budg_rev_by_genre$mean_revenue[i] > 50000000) & (budg_rev_by_genre$mean_budget[i] > 20000000)) {
+    value[length(value)+1] <- budg_rev_by_genre$mean_budget[i]
+    value[length(value)+1] <- budg_rev_by_genre$mean_revenue[i]
+    genre_comp[length(genre_comp)+1] <- budg_rev_by_genre$genre[i]
+    genre_comp[length(genre_comp)+1] <- budg_rev_by_genre$genre[i]
+    mean_budget_revenue[length(mean_budget_revenue)+1] <- "Budget moyen"
+    mean_budget_revenue[length(mean_budget_revenue)+1] <- "Revenu moyen"
+  }
+}
+data_by_genre <- data.frame(genre_comp,mean_budget_revenue,value)
+
+ggplot(data_by_genre, aes(fill = mean_budget_revenue, y = as.numeric(value), x = genre_comp)) + 
+    geom_bar(position="dodge", stat="identity") +
+    geom_text(aes(label = sprintf("%.0f", value / 1e6)), position = position_dodge(width=0.9) , vjust = -0.5,  size = 3) +
+    scale_y_continuous(labels = function(x) sprintf("%.0f M", x / 1e6)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(x = "Genre", y = "Budget/revenu moyen (en M de $)", 
+       title = "Comparaison budget/revenu moyen par genre",
+       fill = "")
+```
+
+**Analyse**
+
+Ainsi, on remarque que certains genres prédominants comme Adventure ou Action restent majoritaires, tandis que d'autres comme Drama, Comedy ou Thriller ont une moyenne bien inférieure à Action et Adventure. Par ailleurs, on distingue les genres Animation, Family, Fantasy et Science-Fiction dont les moyennes sont supérieures ou proches de Adventure. On peut donc en déduire que les genres Drama, Comedy et Thriller possèdent une grande quantité de films produits, contrairement aux genres Animation, Family, Fantasy et Science-Fiction. On observe ainsi que les genres Action, Adventure, Animation, Family, Fantasy et Science-Fiction demandent un budget plus conséquent que l'on peut traduire par des besoins d'effets spéciaux ou de post-production. Ces genres sont également sont générant le plus de revenus en moyenne. On peut donc se demander si ces genres générant le plus de revenus sont également les plus populaires ? En analysant le graphique "Distribution de la popularité par genre de film (à grande popularité)", on remarque ainsi que ce sont effectivement les genres présents sur le graphique. Néanmoins, la popularité des genres Animation et Family étant principalement portée par un seul film, de même pour Comedy et Drama, on peut considérer que la popularité du dataset dépend de plusieurs facteurs et qu'elle n'est pas (ou pas uniquement) liée au revenu généré d'un film.
+
+---
 
 Ici, on va s'intéresser à la relation qui existe entre la notre d'un film et le ou les acteurs du film.  Quel est le lien entre les acteurs et la note ou la popularité du film ?
 
