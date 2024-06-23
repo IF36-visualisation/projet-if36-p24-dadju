@@ -1610,10 +1610,10 @@ year<- movies$year
 
 ```{r Changer ou modifier la durée des tranches et creation du graphique de la distribution de la popularite des films }
 intervalles <- seq(1900, 2020, by = 5)
-plot_interactif <- ggplot(data = data, aes(x = (cut(as.numeric(year), breaks = intervalles)), y = popularity)) +
+plot_interactif <- ggplot(data = movies, aes(x = (cut(as.numeric(year), breaks = intervalles)), y = popularity)) +
   geom_boxplot(fill = "brown", color = "black", size = 0.3) +  
   labs(x = "Années ", y = "Popularité du film", title = "Distribution de la popularité des films tous les 5 ans") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 plotly_plot <- ggplotly(plot_interactif, tooltip = c())
 plotly_plot
 ```
