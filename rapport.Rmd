@@ -150,9 +150,9 @@ Nous pourrons ici analyser plusieurs features en regard des dates de sortie du f
 
 - Est-ce qu’il y a une évolution de la durée des films dans le temps ?
 
--Est-ce qu'il y'a un lien entre le budget d'un film et sa durée?
+- Est-ce qu'il y a un lien entre le budget d'un film et sa durée ?
 
--Est-ce qu'il y'a une différence de la durée des films dans chaque pays?
+- Est-ce qu'il y a une différence de durée des films dans chaque pays ?
 
 - Est-ce que les maisons de production ont varié le genre de leurs films au fil du temps ?
 
@@ -898,9 +898,9 @@ Ainsi, on remarque que certains genres prédominants comme Adventure ou Action r
 
 ---
 
-Ici, on va s'intéresser à la relation qui existe entre la notre d'un film et le ou les acteurs du film.  Quel est le lien entre les acteurs et la note ou la popularité du film ?
+Ici, on va s'intéresser à la relation qui existe entre la note d'un film et le ou les acteurs du film. Quel est le lien entre les acteurs et la note ou la popularité du film ?
 
-Cette analyse vise à déterminer la relation entre les acteurs et la popularité ou la note attribuée à un film. Nous cherchons à savoir si la présence d'un acteur influence la note ou la popularité du film. La note du film est une variable quantitative continue, et l'acteur est une donnée qualitative nominale de ce fait ,
+Cette analyse vise à déterminer la relation entre les acteurs et la popularité ou la note attribuée à un film. Nous cherchons à savoir si la présence d'un acteur influence la note ou la popularité du film. La note du film est une variable quantitative continue, et l'acteur est une donnée qualitative nominale.
 Pour étudier la distribution de la note ou de la popularité en fonction des acteurs, la visualisation la plus appropriée est un barplot (diagramme à barres). Le barplot permet de comparer visuellement la note moyenne ou la popularité des films associés à différents acteurs, et d'évaluer s'il existe des différences significatives en fonction des acteurs.
 
 ```{r lien film et acteur}
@@ -956,7 +956,7 @@ plotly_plot
 **Analyse**
 Certains films reçoivent une note moyenne largement supérieure à 5 en raison de la présence d'un acteur célèbre. Cela suggère que l'acteur peut influencer la note attribuée à un film. En effet, plus un acteur est connu, plus le film a de chances de connaître un succès accru. Cette tendance peut s'expliquer par plusieurs facteurs.
 Tout d'abord, l'attraction du public joue un rôle crucial. Les acteurs populaires ont souvent une base de fans fidèles qui peuvent influencer positivement la popularité d'un film. Les fans sont enclins à regarder et à apprécier les films mettant en vedette leurs acteurs préférés, ce qui peut contribuer à des notes plus élevées.
-De plus, les films avec des acteurs célèbres bénéficient généralement d'une meilleure couverture médiatique et de campagnes de marketing plus agressives. Cette visibilité accrue attire un public plus large et peut également contribuer à des notes plus élevées pour le film.
+De plus, les films avec des acteurs célèbres bénéficient généralement d'une meilleure couverture médiatique et de campagnes marketing plus agressives. Cette visibilité accrue attire un public plus large et peut également contribuer à des notes plus élevées pour le film.
 En conclusion, la présence d'acteurs célèbres semble jouer un rôle significatif dans la perception et la réussite d'un film, influençant à la fois la note attribuée et la réception par le public.
 
 
@@ -972,7 +972,7 @@ Pour tous les graphiques du dashboard (et ceux que nous présentons sur le rappo
 De plus, il nous semble important de calculer les bénéfices des films. Nous avons choisi pour cela de déduire des revenus le budget du film, pour obtenir à peu près les bénéfices. 
 Enfin, comme nous souhaitons voir l'évolution, nous avons décider de grouper les films par année de production, puis de calculer soit la moyenne par année, soit la médiane. Ce choix de métrique s'effectue directement depuis le dashboard. Là encore, le diagramme est interactif afin de donner de la liberté à l'utilisateur pour qu'il explore les données. 
 
-Des screenshots des deux pages du dashboard ont été réalisés pour être montrés dans ce rapport, mais nous détaillerons ensuite les différents graphiques en les rendant accessibles directement depuis ce rapport. L'utilisateur peu se rendre directement dans le dossier shiny pour manipuler le dashboard s'il le souhaite.
+Des screenshots des deux pages du dashboard ont été réalisés pour être montrés dans ce rapport, mais nous détaillerons ensuite les différents graphiques en les rendant accessibles directement depuis ce rapport. L'utilisateur peut se rendre directement dans le dossier shiny pour manipuler le dashboard s'il le souhaite.
 
 ![Dashboard 1](data/dashboard_1.png)
 ![Dashboard 2](data/dashboard_2.png)
@@ -1013,7 +1013,7 @@ revenue_plotly
 
 Nous pouvons voir ici les distributions du budget et des revenus dans notre jeu de données.
 
-On constate que la médiane du budget est de 23 Millions de dollars alors que celle des revenus est de presque 52 Millions de dollars. La moyenne (représentée par un point bleu sur les graphiques) s'élève quant-à-elle à 117 Millions de dollars pour les revenus et 37 Millions pour le budget. 
+On constate que la médiane du budget est de 23 Millions de dollars alors que celle des revenus est de presque 52 Millions de dollars. La moyenne (représentée par un point bleu sur les graphiques) s'élève quant à elle à 117 Millions de dollars pour les revenus et 37 Millions pour le budget. 
 
 On s'attend donc à ce que la courbe d'évolution des revenus sur le prochain graphique soit plus élevée que celle du budget. 
 Nous allons ici afficher le graphique où les films sont regroupés par année, et où pour chaque année, la moyenne du budget, des revenus et des bénéfices est affichée.
@@ -1392,7 +1392,7 @@ plotly_plot
 ```
 **Analyse**
 
-Le graphe obtenu montre qu'il existe une corrélation positive entre le budget et la durée d'un film car la durée d'un film augmente proportionnellementavec son budget. Aussi certains films à faibles budgets sont des films dont la durée est  grande par rapport aux autres est ce pour dire que les films à faible budget dure plus qu'un film à grand budget?cette diférence de durée est ce due au fait que les film ne sont pas du meme genre ou est ce du à des contraintes cinématographiques?Ce pendant on remarque que certains films ont un budget de 0$ et une durée de 0 minutes ce qui n'est pas normal
+Le graphique obtenu montre qu'il existe une corrélation positive entre le budget et la durée d'un film car la durée d'un film augmente proportionnellement avec son budget. Aussi, certains films à faible budget sont des films dont la durée est grande par rapport aux autres, est-ce pour dire que les films à faible budget ont une durée supérieure à un film à grand budget ? Cette diférence de durée est-elle due au fait que les films ne sont pas du même genre ou est-ce du à des contraintes cinématographiques ? Cependant, on remarque que certains films ont un budget de 0$ et une durée de 0 minutes ce qui n'est pas normal.
 
 
 ```{r filtrage des données}
@@ -1414,8 +1414,9 @@ plot_interactif_1 <- ggplot(movies_filtered, aes(x = budget, y = runtime)) +
 plotly_plot <- ggplotly(plot_interactif_1, tooltip = c("budget", "runtime"))
 plotly_plot
 ```
+
 Vérifions si la durée d'un film varie en fonction du genre 
-Pour cela , créons un diagramme en bar.
+Pour cela, créons un diagramme en bar.
 
 ```{r durée des films en fonction du genre}
 # Extraire les genres et la durée des films
@@ -1473,6 +1474,7 @@ labs(title = "Durée moyenne des films par genre",
 Le graphique montre comment la durée moyenne d'un film varie en fonction de son genre. D'après cette visualisation, il existe une corrélation positive entre le budget d'un film et sa durée : les films avec un budget plus élevé tendent à avoir une durée plus longue. Cependant, certains genres de films, tels que les films historiques, d'action et drame, présentent une durée moyenne plus élevée malgré des budgets souvent modestes.
 On peut donc conclure que bien que le budget influence significativement la durée d'un film, d'autres facteurs comme le genre jouent également un rôle important dans la détermination de la durée d'un film.
 
+---
 
 On va maintenant s'intéresser à la  différence significative de la durée des films entre différents pays ?
 
@@ -1552,11 +1554,11 @@ plotly_plot
 
 Le graphique obtenu montre des différences significatives dans la durée des films entre différents pays. Certains pays ont des films dont la durée est notablement supérieure ou inférieure par rapport à d'autres. Plusieurs facteurs peuvent expliquer ces différences :
 
-Censure et Coupures : Dans certains pays, des scènes peuvent être coupées ou censurées pour des raisons culturelles ou religieuses, ce qui réduit ainsi la durée des films.
+- Censure et coupures : Dans certains pays, des scènes peuvent être coupées ou censurées pour des raisons culturelles ou religieuses, ce qui réduit ainsi la durée des films.
 
-Adaptation Culturelle : Les films peuvent être modifiés pour mieux correspondre aux préférences culturelles et aux attentes du public local. Cela peut inclure la suppression de scènes jugées peu pertinentes ou inappropriées.
+- Adaptation culturelle : Les films peuvent être modifiés pour mieux correspondre aux préférences culturelles et aux attentes du public local. Cela peut inclure la suppression de scènes jugées peu pertinentes ou inappropriées.
 
-Motivations Commerciales : Certains distributeurs locaux peuvent décider de  modifier la durée des films pour des raisons commerciales, telles que l'adaptation aux créneaux horaires de diffusion ou pour maximiser l'audience.
+- Motivations commerciales : Certains distributeurs locaux peuvent décider de modifier la durée des films pour des raisons commerciales, telles que l'adaptation aux créneaux horaires de diffusion ou pour maximiser l'audience.
 
 Ces facteurs montrent l'importance de l'adaptation des films aux contextes locaux et aux attentes du marché.
 
@@ -1564,9 +1566,9 @@ Par ailleurs, le boxplot révèle que certains pays produisent des films d'une d
 
 En conclusion, les différences observées dans la durée des films entre différents pays soulignent l'impact des contextes culturels, réglementaires et commerciaux sur la production cinématographique.
 
+---
 
-
-Dans une seconde partie, nous allons chercher à connaitre l’évolution de la popularité des films en fonction des années, car comprendre cette évolution au fil des ans peut fournir des informations précieuses sur les tendances de consommation de médias, les préférences du public et les changements culturels.
+Dans une seconde partie, nous allons chercher à connaître l’évolution de la popularité des films en fonction des années, car comprendre cette évolution au fil des années peut fournir des informations précieuses sur les tendances de consommation de médias, les préférences du public et les changements culturels.
 
 Attente : On s’imagine que de nos jours, les films sont plus populaires comparés aux années 1900.
 
@@ -1625,7 +1627,7 @@ year<- movies$year
 intervalles <- seq(1900, 2020, by = 5)
 plot_interactif <- ggplot(data = data, aes(x = (cut(as.numeric(year), breaks = intervalles)), y = popularity)) +
   geom_boxplot(fill = "brown", color = "black", size = 0.3) +  
-  labs(x = "Années ", y = "Popularité du film", title = "Distribution de la populariité des films sur tous les 5 ans") +
+  labs(x = "Années ", y = "Popularité du film", title = "Distribution de la popularité des films tous les 5 ans") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 plotly_plot <- ggplotly(plot_interactif, tooltip = c())
 plotly_plot
@@ -1634,9 +1636,9 @@ plotly_plot
 
 **Analyse**
 
-Pour l'affichage du graphique, nous n'avons considéré la popularité qu'entre 0 et 250 car ce n'est que dans cet intervalle que les points sont representés. Aussi, cette décision a été prise afin d'obtenir une meilleure appréciation et lisibilité de la popularité moyenne des films.
+Pour l'affichage du graphique, nous n'avons considéré la popularité qu'entre 0 et 250 car ce n'est que dans cet intervalle que les points sont représentés. Aussi, cette décision a été prise afin d'obtenir une meilleure appréciation et lisibilité de la popularité moyenne des films.
 
-On constate qu’à partir de l’année 1970 jusqu’à nos jours, il y a des films qui sont plus populaires que d’autres avec l'émergence de mouvements cinématographiques, Les genres populaires comprennent l'action, la science-fiction pour adolescents. Les films de super-héros sont devenus omniprésents et les styles de films en 3D. Alors qu’avant les années 1970, nous étions dans une certaine suffisance ce qui pourrait justifier la raison pour laquelle il n’y a pas de films plus populaires que d’autres au cours de cette période-là.
+On constate qu’à partir de l’année 1970 jusqu’à nos jours, il y a des films qui sont plus populaires que d’autres avec l'émergence de mouvements cinématographiques. Les genres populaires comprennent l'action, la science-fiction pour adolescents. Les films de super-héros sont devenus omniprésents et les styles de films en 3D. Alors qu’avant les années 1970, nous étions dans une certaine suffisance ce qui pourrait justifier la raison pour laquelle il n’y a pas de films plus populaires que d’autres au cours de cette période-là.
 
 Cela nous amène à une nouvelle question qui est de savoir le nombre de films réalisés par pays chaque année.
 
@@ -1693,7 +1695,9 @@ plotly_plot
 
 On remarque qu’effectivement, ce sont les États-Unis qui réalisent le plus de films sur les années. Aussi, on constate que la production des films a doublé à partir de l’année 1997 et triplé à partir des années 2000.
 Les espaces vides présents sur le graphique peuvent s’expliquer par le manque de valeurs à ces instants. De plus, le graphique ne représente que les pays qui ont réalisé plus de 5 films sur une année donnée pour éviter la surcharge et obtenir une meilleure visibilité car avant les années 1960, les pays producteurs réalisaient moins de 5 films par année.
-Même si la prépondérance des Etats-Unis est notable, il convient de souligner qu'à partir des années 2000, les pays producteurs se diversifient.
+Même si la prépondérance des États-Unis est notable, il convient de souligner qu'à partir des années 2000, les pays producteurs se diversifient.
+
+---
 
 Pour la suite de notre analyse, nous allons maintenant mettre l'accent sur les compagnies de production. En effet, nous allons chercher à savoir si elles ont varié leur genre de films au fil du temps. Pour ce faire, nous avons jugé qu'il serait plus intéressant de nous concentrer sur les compagnies ayant produit le plus de films, étant donné le nombre important de compagnies de production. Pour cela, nous avons réalisé au préalable un graphique à barres affichant le nombre de films produits par compagnie de production et par année.
 
@@ -1702,7 +1706,6 @@ Attente : Nous nous attendons à ce que les compagnies de production américaine
 Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables utilisées, telles que la compagnie de production et la date, sont respectivement des variables qualitatives nominales et quantitatives continues.
 
 Durant la rédaction du code, nous avons filtré le dataset de sorte qu’il ne contienne que les compagnies de production ayant réalisé plus de 5 films, afin de rendre le graphique plus lisible et compréhensible.
-
 
 ```{r création du graphique du nombre de films réalisés par compagnie de production et par année }
 country_data <- data %>%
@@ -1727,7 +1730,6 @@ plot_interactif <- ggplot(count_data_filtered, aes(x = year, y = count, fill = c
 plotly_plot <- ggplotly(plot_interactif, tooltip = c())
 plotly_plot
 ```
-
 
 **Analyse**
 
@@ -1849,16 +1851,14 @@ Entre 2010-2015, le genre dramatique a de nouveau connu un pic important. Les fi
 
 Cette analyse montre que Canal+ a diversifié sa production de films au fil du temps, en adaptant ses choix de genres pour répondre aux tendances du marché et aux attentes des spectateurs.
 
-Après ces différentes comparaisons malgré différents pays de production, nous comprenons donc que ces compagnies cherchent non seulement à élargir leur type de genre de films mais aussi se conformer à la tendance du marché. Etant donné que la plupart produisent les mêmes genres de films à un moment donné et ne cherchent qu’à générer et à augmenter leurs profits.
-
+Après ces différentes comparaisons malgré différents pays de production, nous comprenons donc que ces compagnies cherchent non seulement à élargir leur type de genre de films mais aussi se conformer à la tendance du marché. Étant donné que la plupart de ces compagnies produise les mêmes genres de films à un moment donné et ne cherchent qu’à générer et à augmenter leurs profits.
 
 
 ### Analyse des mots employés dans les films
 
-Dans cette partie, nous nous interrogerons sur la fréquence des mots-clés utilisés en fonction du genre. Étant donné que ce dataset contient 21 genres distincts, nous pencherons principalement sur les genres Adventure, Fantasy et Science-Fiction. Nous nous attendons à ce que chaque genre utilise des mots-clés d'un même champ lexical ou d'un même univers. 
+Dans cette partie, nous nous interrogerons sur la fréquence des mots-clés (variables qualitatives nominales) utilisés en fonction du genre (variables qualitatives nominales). Étant donné que ce dataset contient 21 genres distincts, nous pencherons principalement sur les genres Adventure, Fantasy et Science-Fiction. Nous nous attendons à ce que chaque genre utilise des mots-clés d'un même champ lexical ou d'un même univers. 
 
 ```{r traitement_keywords}
-library(wordcloud)
 data_keywords <- data %>% select(genres, keywords)
 keywords_list_by_genre <- c()
 j <- 1
