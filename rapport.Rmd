@@ -2200,7 +2200,7 @@ La principale difficulté de notre jeu de données est l'absence de définition 
 
 **Eloïse : ** Ce projet a été l'occasion pour moi de découvrir l'application shiny et de créer ainsi un dashboard interactif complet avec lequel l'utilisateur peut intéragir. Il aurait été intéressant de travailler sur un jeu de données plus récent, afin de réellement étudier l'impact de l'apparition des plateformes de streaming dans l'industrie cinématographique, et aussi de voir les effets générés par la période Covid.
 
-**Laure : **
+**Laure : ** Ce projet m'a permis d'approfondir mes connaissances dans le langage R, autant pour le traitement de données que pour la création de graphiques. Il aurait été intéressant de compléter notre dataset avec d'autres jeux de données afin de pouvoir analyser l'industrie du cinéma de façon plus complète.
 
 **Gaudeline Maeva : **
 
@@ -2230,6 +2230,15 @@ Dans ce projet, j'ai eu l'occasion de travailler sur plusieurs parties :
 
 ### Laure
 
+- Étude des réalisateurs les plus populaires en fonction du genre
+
+- Étude des genres les plus populaires
+
+- Étude du budget et du revenu par genre
+
+- Étude des mots-clés les plus fréquents en fonction du genre
+
+- Contribution à la correction des autres parties du code
 
 ### Gaudeline Maeva
 
