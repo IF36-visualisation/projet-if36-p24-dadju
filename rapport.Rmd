@@ -1483,59 +1483,47 @@ On cherche à étudier les différences significatives dans la durée des films 
 Pour étudier et comparer la durée des films (donnée quantitative continue) entre différents pays (donnée qualitative nominale), nous utiliserons un boxplot. Le boxplot est un outil graphique efficace pour visualiser la distribution des durées de films et identifier les différences significatives entre les pays.
 
 ```{r différence de la durée des films dans différents pays}
-# Fonction pour extraire les codes ISO des pays de production
-extract_iso_codes <- function(json_string) {
-# Parse the JSON string
-  parsed_json <- fromJSON(json_string, simplifyDataFrame = FALSE)
-  
-# Extract the ISO codes
-  iso_codes <- sapply(parsed_json, function(x) x$iso_3166_1)
-  
-  return(iso_codes)
+# Fonction pour nettoyer les codes de pays en ne conservant que les lettres majuscules
+clean_countries <- function(countries) {
+  cleaned <- gsub("[^A-Z]", "", countries)
+  return(cleaned)
 }
 
-# Extraire les pays de production et la durée des films
-movies <- data
-  mutate(production_countries = lapply(production_countries, extract_iso_codes))
+# Séparer les pays de production en lignes distinctes
+movies <- movies %>%
+  separate_rows(production_countries, sep = ", ") %>%
+  filter(production_countries != "")
 
-# Ajouter les pays modifiés à un nouveau dataframe
-movies_countries <- data.frame(matrix(ncol = 2, nrow = 0))
-colnames(movies_countries) <- c("country", "runtime")
+# Appliquer la fonction de nettoyage aux codes de pays
+movies$production_countries <- sapply(movies$production_countries, clean_countries)
 
-for (i in 1:nrow(movies)) {
-  if (!is.null(movies$production_countries[[i]]) && length(movies$production_countries[[i]]) > 0) {
-    for (country in movies$production_countries[[i]]) {
-      movies_countries <- rbind(movies_countries, data.frame(country = country, runtime = movies$runtime[i]))
-    }
-  }
-}
+# Filtrer à nouveau pour s'assurer qu'il n'y a pas de valeurs vides
+movies <- movies %>%
+  filter(production_countries != "")
 
 # Filtrer les pays qui produisent un nombre significatif de films (au moins 10 films)
-country_counts <- movies_countries %>%
-  group_by(country) %>%
-  summarise(count = n()) %>%
+country_counts <- movies %>%
+  group_by(production_countries) %>%
+  summarise(count = n(), avg_runtime = mean(runtime, na.rm = TRUE)) %>%
   filter(count >= 10)
 
-movies_filtered <- movies_countries %>%
-  filter(country %in% country_counts$country)
-
-# Calculer la durée moyenne des films par pays
-avg_runtime_by_country <- movies_filtered %>%
-  group_by(country) %>%
-  summarise(avg_runtime = mean(runtime, na.rm = TRUE))
-
 # Créer le barplot pour la durée moyenne des films par pays
-ggplot(avg_runtime_by_country, aes(x = reorder(country, -avg_runtime), y = avg_runtime, fill = country)) +
+ggplot(country_counts, aes(x = reorder(production_countries, -avg_runtime), y = avg_runtime, fill = production_countries)) +
   geom_bar(stat = "identity") +
   labs(title = "Durée moyenne des films par pays",
        x = "Pays (Code ISO)",
        y = "Durée moyenne (en minutes)") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-# etudions la distribution de cette visualisation avec un boxplot
+
+
+
+# Filtrer les films pour ne conserver que ceux des pays ayant produit au moins 10 films
+movies_filtered <- movies %>%
+  filter(production_countries %in% country_counts$production_countries)
 
 # Créer le boxplot pour la distribution des durées des films par pays
-plot_interactif_1 <- ggplot(movies_filtered, aes(x = reorder(country, -runtime), y = runtime, fill = country)) +
+plot_interactif_1 <- ggplot(movies_filtered, aes(x = reorder(production_countries, -runtime), y = runtime, fill = production_countries)) +
   geom_boxplot() +
   labs(title = "Distribution des durées des films par pays",
        x = "Pays (Code ISO)",
@@ -1549,9 +1537,6 @@ plotly_plot <- ggplotly(plot_interactif_1, tooltip = c())
 # Afficher le graphique interactif
 plotly_plot
 ```
-
-**Analyse**
-
 Le graphique obtenu montre des différences significatives dans la durée des films entre différents pays. Certains pays ont des films dont la durée est notablement supérieure ou inférieure par rapport à d'autres. Plusieurs facteurs peuvent expliquer ces différences :
 
 - Censure et coupures : Dans certains pays, des scènes peuvent être coupées ou censurées pour des raisons culturelles ou religieuses, ce qui réduit ainsi la durée des films.
@@ -2207,7 +2192,7 @@ Afin d'améliorer notre projet, il aurait été pertinent d'ajouter d'autres jeu
 
 **Gaudeline Maeva : ** Ce projet m'a offert l'opportunité de manipuler et de visualiser des données avec un autre langage (le langage R) et de découvrir des applications de visualisation telles que Tableau.
 
-**Belvine : **
+**Belvine : ** Grace à ce projet, j'ai decouvert un nouvel langage(R) et appris de nouvelles notions et applications de ce langaage.
 
 ---
 
@@ -2262,3 +2247,13 @@ Dans ce projet, j'ai eu l'occasion de travailler sur plusieurs parties :
 - Quels sont les pays qui ont réalisé le plus de films en fonction des années ?
 
 ### Belvine
+
+- Evolution de la durée des films dans le temps
+
+-Lien entre le budget et la durée d'un film
+
+-Lien entre la note et les acteurs du film
+
+-Différence de la durée des films dans différents pays
+
+- est ce que la durée d'un film est fonction du genre du film?
