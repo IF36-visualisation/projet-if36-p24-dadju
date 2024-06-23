@@ -2193,8 +2193,7 @@ Nous avons découper notre exploration en trois grandes parties :
 
 - **Analyse des tendances temporelles :** Nous avons pu constater ici plusieurs évolutions, telles que l'augmentation du budget et des revenus des films au cours du temps, mais aussi des "blockbusters" qui, certaines années, influent grandement les tendances. Nous avons aussi pu mettre en avant l'apparition de nouveaux genres de films et l'émergence de nouvelles maisons de production. Enfin, nous avons étudié d'autres changements dans le temps tels que le nombre de films présents ou encore la durée de ces derniers.
 
-- **Analyse des mots employés pour décrire le film :** 
-
+- **Analyse des mots employés pour décrire le film :** Nous avons essayé de chercher à savoir s'il y avait des mots-clés qui caractérisaient des maisons de production, les réalisateurs et peut-être les pays de production comme des marques de fabrique mais nous avons compris qu'ils étaient plutôt associés aux genres de films auquels ils ont contribué.
 
 La principale difficulté de notre jeu de données est l'absence de définition claire de ce que signifie la "popularité". Nous avons donc du choisir nous même une définition nous semblant cohérente. Ensuite, nous avions des disparités de nombre de films selon les années, ce qui rendait l'analyse des tendances  plus délicate pour les années antérieures à 1980. Enfin, une partie des variables de notre dataset était sous format json, ce qui a demandé des prétraitements relativement importants selon les graphiques à réaliser. 
 
@@ -2202,7 +2201,7 @@ La principale difficulté de notre jeu de données est l'absence de définition 
 
 **Laure : ** Ce projet m'a permis d'approfondir mes connaissances dans le langage R, autant pour le traitement de données que pour la création de graphiques. Il aurait été intéressant de compléter notre dataset avec d'autres jeux de données afin de pouvoir analyser l'industrie du cinéma de façon plus complète.
 
-**Gaudeline Maeva : **
+**Gaudeline Maeva : ** Ce projet m'a offert l'opportunité de manipuler et de visualiser des données avec un autre langage (le langage R) et de découvrir des applications de visualisation telles que Tableau.
 
 **Belvine : **
 
@@ -2242,5 +2241,18 @@ Dans ce projet, j'ai eu l'occasion de travailler sur plusieurs parties :
 
 ### Gaudeline Maeva
 
+- Quels sont les pays qui ont réalisé le plus de films en fonction des années ?
+
+- Est-ce qu’il y a une évolution de la popularité des films dans le temps ?
+
+- Quels sont les maisons de production qui ont réalisées le plus de films en fonction des années ?
+
+- Est-ce que les maisons de production ont varié le genre de leurs films au fil du temps ?
+
+- Est-ce que certains mots-clés ressortent dans les films de telle ou telle compagnie de production ou pour tel réalisateur ? Cela a-t-il un lien avec le pays de production ?
+
+- Est-ce que les mots-clés utilisés ont une influence sur l’appréciation ou la note du film ?
+
+- Quels sont les pays qui ont réalisé le plus de films en fonction des années ?
 
 ### Belvine
