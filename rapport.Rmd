@@ -943,7 +943,7 @@ geom_bar(stat = "identity") +
        x = "Acteur",
        y = "Note moyenne") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 0, hjust = 1)) +
   coord_flip()
 
 # Conversion en graphique interactif avec plotly
@@ -1670,7 +1670,7 @@ plot_interactif <- ggplot(films_par_pays_par_annee, aes(x = as.numeric(year), y 
   scale_fill_brewer(palette = "Paired")+
   labs(x = "Année", y = "Nombre de films réalisés", fill = "Pays", title = " Nombre de films réalisés par pays et par année ") +
   theme_minimal()+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  theme(axis.text.x = element_text(angle = 0, hjust = 1))
 plotly_plot <- ggplotly(plot_interactif, tooltip = c())
 plotly_plot
 ```
