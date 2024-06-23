@@ -2195,7 +2195,11 @@ Nous avons découper notre exploration en trois grandes parties :
 
 - **Analyse des mots employés pour décrire le film :** Nous avons essayé de chercher à savoir s'il y avait des mots-clés qui caractérisaient des maisons de production, les réalisateurs et peut-être les pays de production comme des marques de fabrique mais nous avons compris qu'ils étaient plutôt associés aux genres de films auquels ils ont contribué.
 
-La principale difficulté de notre jeu de données est l'absence de définition claire de ce que signifie la "popularité". Nous avons donc du choisir nous même une définition nous semblant cohérente. Ensuite, nous avions des disparités de nombre de films selon les années, ce qui rendait l'analyse des tendances  plus délicate pour les années antérieures à 1980. Enfin, une partie des variables de notre dataset était sous format json, ce qui a demandé des prétraitements relativement importants selon les graphiques à réaliser. 
+La principale difficulté de notre jeu de données est l'absence de définition claire de ce que signifie la "popularité". Nous avons donc du choisir nous même une définition qui nous semblait cohérente. Ensuite, nous avions des disparités de nombre de films selon les années, ce qui rendait l'analyse des tendances plus délicate pour les années antérieures à 1980. Enfin, une partie des variables de notre dataset était sous format JSON ou sous forme de liste de mots, ce qui a demandé des prétraitements relativement importants selon les graphiques à réaliser. 
+
+Afin d'améliorer notre projet, il aurait été pertinent d'ajouter d'autres jeux de données pour permettre de compléter les périodes manquantes et limiter les disparités de notre jeu de données actuel. Nous pourrions également élargir notre analyse et nous intéresser à l'impact de l'apparition des plateformes de streaming dans l'industrie cinématographique. De plus, un jeu de données plus récent nous aurait permis d'analyser les conséquences du Covid pendant et après la période du Covid. 
+
+# Retours du projet
 
 **Eloïse : ** Ce projet a été l'occasion pour moi de découvrir l'application shiny et de créer ainsi un dashboard interactif complet avec lequel l'utilisateur peut intéragir. Il aurait été intéressant de travailler sur un jeu de données plus récent, afin de réellement étudier l'impact de l'apparition des plateformes de streaming dans l'industrie cinématographique, et aussi de voir les effets générés par la période Covid.
 
@@ -2237,7 +2241,9 @@ Dans ce projet, j'ai eu l'occasion de travailler sur plusieurs parties :
 
 - Étude des mots-clés les plus fréquents en fonction du genre
 
-- Contribution à la correction des autres parties du code
+- Réalisation d'un dashboard Tableau
+
+- Contribution à la correction des autres parties du code et à la rédaction de la conclusion
 
 ### Gaudeline Maeva
 
