@@ -803,6 +803,7 @@ plotly_plot3
 ```
 
 **Analyse**
+
 On constate que les genres les plus populaires sont les films d'action, d'aventure, d'animation, familiale, de science-fiction et de fantasy. Néanmoins, certains genres un peu moins populaires comme les comédies et les drames comprennent quelques films à très grand popularité, là où la popularité des films d'action, est moins importante, mais plus constante. Enfin, on remarque que les documentaires et les films étrangers ont une popularité globalement très faible.
 
 ---
@@ -864,6 +865,7 @@ ggplot(data_by_genre, aes(fill = budget_revenue, y = as.numeric(value), x = genr
        title = "Comparaison budget/revenu total par genre",
        fill = "")
 ```
+
 On distingue 5 genres qui se démarquent par le budget total demandé et le revenu total généré : Action, Adventure, Comedy, Drama et Thriller. Néanmoins, ces valeurs peuvent être biaisées par le nombre de films produits dans chaque genre. On réalise donc un nouveau graphique permettant de comparer le budget moyen et le revenu moyen par genre (et donc pour un film).
 
 ```{r dodge_bar_plot_budget_revenue_mean_by_genre}
@@ -954,6 +956,7 @@ plotly_plot
 ```
 
 **Analyse**
+
 Certains films reçoivent une note moyenne largement supérieure à 5 en raison de la présence d'un acteur célèbre. Cela suggère que l'acteur peut influencer la note attribuée à un film. En effet, plus un acteur est connu, plus le film a de chances de connaître un succès accru. Cette tendance peut s'expliquer par plusieurs facteurs.
 Tout d'abord, l'attraction du public joue un rôle crucial. Les acteurs populaires ont souvent une base de fans fidèles qui peuvent influencer positivement la popularité d'un film. Les fans sont enclins à regarder et à apprécier les films mettant en vedette leurs acteurs préférés, ce qui peut contribuer à des notes plus élevées.
 De plus, les films avec des acteurs célèbres bénéficient généralement d'une meilleure couverture médiatique et de campagnes marketing plus agressives. Cette visibilité accrue attire un public plus large et peut également contribuer à des notes plus élevées pour le film.
@@ -1471,6 +1474,7 @@ labs(title = "Durée moyenne des films par genre",
 
 
 **Analyse**
+
 Le graphique montre comment la durée moyenne d'un film varie en fonction de son genre. D'après cette visualisation, il existe une corrélation positive entre le budget d'un film et sa durée : les films avec un budget plus élevé tendent à avoir une durée plus longue. Cependant, certains genres de films, tels que les films historiques, d'action et drame, présentent une durée moyenne plus élevée malgré des budgets souvent modestes.
 On peut donc conclure que bien que le budget influence significativement la durée d'un film, d'autres facteurs comme le genre jouent également un rôle important dans la détermination de la durée d'un film.
 
@@ -1904,6 +1908,7 @@ wordcloud(keywords_scifi, max.words = 100, colors=brewer.pal(8, "Dark2"),  rot.p
 On remarque que les films de science-fiction sont pour beaucoup décrits comme une dystopie en rapport avec l'espace, les aliens (mutant, zombie, robot, android) ou le futur (time, artificial, technology, robot). Parmi eux, on peut citer Startrek ou Men In Black (space), Transformers ou Independance day (alien), Le Cinquième Élément (The Fifth Element) ou Avatar (future).
 
 **Analyse**
+
 À travers ces 3 nuages de mots, on peut constater que les mots-clés décrivent les films d'un même genre avec un champ lexical semblable. On devrait donc être capable de classer les films par genre cinématographique à partir de ces mots-clés.
 
 ---
@@ -2001,6 +2006,7 @@ print(plot)
 ```
 
 **Analyse**
+
 Nous voyons bien que tous ses mots-clés reflètent des mots des films de genres musique, famille et fantastique.
 
 
@@ -2109,6 +2115,7 @@ print(plot_director)
 ```
 
 **Analyse**
+
 Nous constatons aussi que Christopher Nolan n'est pas associé à un mot-clé distinctif mais est plutôt lié aux genres de films auxquels il a contribué, notamment la science-fiction, l'aventure et de drame, comme en témoignent les mots-clés récurrents tels que comics, secret, crime, fighter, dans ce dataset.
 
 
