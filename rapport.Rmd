@@ -1376,28 +1376,6 @@ Le but de cette analyse est de déterminer la relation entre le budget d'un film
 Pour étudier la relation entre ces deux variables quantitatives continues, la visualisation la plus appropriée est le scatter plot (diagramme de dispersion). Le scatter plot permet de visualiser la corrélation entre le budget(donnée quantitative continue) et la durée des films(donnée quantitative continue), et d'identifier des tendances ou des anomalies dans les données.
 
 
-```{r relation entre le budget et la durée dun film }
-movies <- data
-# Création de la visualisation avec ggplot2
-plot_interactif_1 <- ggplot(movies, aes(x = budget, y = runtime)) +
-  geom_point(aes(color = budget, size = budget), alpha = 0.7) +
-  geom_smooth(method = "lm", color = "red", se = FALSE) +
-  labs(title = "Relation entre le budget et la durée des films",
-       x = "Budget (millions de $)",
-       y = "Durée (minutes)",
-       color = "Budget (millions de $)",
-       size = "Budget (millions de $)") +
-  theme_minimal()
-
-# Conversion du plot ggplot en plotly
-plotly_plot <- ggplotly(plot_interactif_1, tooltip = c("budget", "runtime"))
-plotly_plot
-```
-**Analyse**
-
-Le graphique obtenu montre qu'il existe une corrélation positive entre le budget et la durée d'un film car la durée d'un film augmente proportionnellement avec son budget. Aussi, certains films à faible budget sont des films dont la durée est grande par rapport aux autres, est-ce pour dire que les films à faible budget ont une durée supérieure à un film à grand budget ? Cette diférence de durée est-elle due au fait que les films ne sont pas du même genre ou est-ce du à des contraintes cinématographiques ? Cependant, on remarque que certains films ont un budget de 0$ et une durée de 0 minutes ce qui n'est pas normal.
-
-
 ```{r filtrage des données}
 #filtrons les données de sorte à ne plus avoir de film avec un budget de 0$
 movies_filtered <- movies %>%
@@ -1418,8 +1396,12 @@ plotly_plot <- ggplotly(plot_interactif_1, tooltip = c("budget", "runtime"))
 plotly_plot
 ```
 
-Vérifions si la durée d'un film varie en fonction du genre 
-Pour cela, créons un diagramme en bar.
+**Analyse**
+
+Le graphique obtenu montre qu'il existe une corrélation positive entre le budget et la durée d'un film car la durée d'un film augmente proportionnellement avec son budget. Aussi, certains films à faible budget sont des films dont la durée est grande par rapport aux autres, est-ce pour dire que les films à faible budget ont une durée supérieure à un film à grand budget ? Cette diférence de durée est-elle due au fait que les films ne sont pas du même genre ou est-ce du à des contraintes cinématographiques ? Cependant, on remarque que certains films ont un budget de 0$ et une durée de 0 minutes ce qui n'est pas normal.
+
+
+Vérifions si la durée d'un film varie en fonction du genre. Pour cela, créons un diagramme en barres.
 
 ```{r durée des films en fonction du genre}
 # Extraire les genres et la durée des films
@@ -1697,6 +1679,7 @@ Pour réaliser une comparaison, nous avons utilisé un geom_bar(). Les variables
 Durant la rédaction du code, nous avons filtré le dataset de sorte qu’il ne contienne que les compagnies de production ayant réalisé plus de 5 films, afin de rendre le graphique plus lisible et compréhensible.
 
 ```{r création du graphique du nombre de films réalisés par compagnie de production et par année }
+data <- read_csv("data/movies.csv")
 country_data <- data %>%
   mutate(release_date = as.Date(release_date))
 country_data <- country_data %>%
@@ -1959,7 +1942,7 @@ company_data <- data[data$production_companies == company_name, ]
     top_keywords <- head(d, 100)
     wordcloud(words = top_keywords$word, freq = top_keywords$freq, random.order = FALSE, rot.per = 0.3, 
               scale = c(4, 0.5), max.words = 100, colors = brewer.pal(8, "Dark2"))
-   title(main = paste("Word Cloud -", company_name), font.main = 1, cex.main = 1.5)
+    mtext(paste("Nuage des mots-clés de", company_name), side = 3, line = 4, font = 1, cex = 1.5)
   }
 ```
 
@@ -2145,7 +2128,7 @@ Attente : Bien que cette analyse ne soit pas très pertinente, nous cherchons à
     top_keywords <- head(d, 100)
     wordcloud(words = top_keywords$word, freq = top_keywords$freq, random.order = FALSE, rot.per = 0.3, 
               scale = c(4, 0.5), max.words = 100, colors = brewer.pal(8, "Dark2"))
-    title(main = paste("Word Cloud -", countries_name), font.main = 1, cex.main = 1.5)
+    mtext(paste("Nuage des mots-clés de", countries_name), side = 3, line = 4, font = 1, cex = 1.5)
   }
 ```
 
@@ -2239,28 +2222,28 @@ Dans ce projet, j'ai eu l'occasion de travailler sur plusieurs parties :
 
 ### Gaudeline Maeva
 
-- Quels sont les pays qui ont réalisé le plus de films en fonction des années ?
+- Etude de l'évolution de la popularité des films dans le temps 
 
-- Est-ce qu’il y a une évolution de la popularité des films dans le temps ?
+- Etude sur les pays ayant réalisé le plus de films en fonction des années
 
-- Quels sont les maisons de production qui ont réalisées le plus de films en fonction des années ?
+- Etude sur les maisons de production ayant réalisées le plus de films en fonction des années
 
-- Est-ce que les maisons de production ont varié le genre de leurs films au fil du temps ?
+- Etude de la variation de genres de films des maisons de production au fil du temps
 
-- Est-ce que certains mots-clés ressortent dans les films de telle ou telle compagnie de production ou pour tel réalisateur ? Cela a-t-il un lien avec le pays de production ?
+- Etude des mots-clés ressortant des films de telle ou telle compagnie de production ou pour tel réalisateur et savoir si  cela a un lien avec les pays de production
 
-- Est-ce que les mots-clés utilisés ont une influence sur l’appréciation ou la note du film ?
-
-- Quels sont les pays qui ont réalisé le plus de films en fonction des années ?
+- Contribution à la rédaction de l'introduction et de la conclusion
 
 ### Belvine
 
 - Evolution de la durée des films dans le temps
 
--Lien entre le budget et la durée d'un film
+- Lien entre le budget et la durée d'un film
 
--Lien entre la note et les acteurs du film
+- Lien entre la note et les acteurs du film
 
--Différence de la durée des films dans différents pays
+- Différence de la durée des films dans différents pays
 
-- est ce que la durée d'un film est fonction du genre du film?
+- Est-ce que la durée d'un film est fonction du genre du film?
+
+- Contribution à la rédaction de l'introduction et de la conclusion
