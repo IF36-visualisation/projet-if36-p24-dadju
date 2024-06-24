@@ -1942,7 +1942,7 @@ company_data <- data[data$production_companies == company_name, ]
     top_keywords <- head(d, 100)
     wordcloud(words = top_keywords$word, freq = top_keywords$freq, random.order = FALSE, rot.per = 0.3, 
               scale = c(4, 0.5), max.words = 100, colors = brewer.pal(8, "Dark2"))
-    mtext(paste("Nuage des mots-clés de", company_name), side = 3, line = 4, font = 1, cex = 1.5)
+    mtext(paste("Nuage des mots-clés de", company_name), side = 3, line = 3, font = 1, cex = 1.5)
   }
 ```
 
@@ -2064,7 +2064,7 @@ top_keywords_by_director_barplot <- function(director_name, data, top_n = 10) {
   top_keywords_df <- data.frame(keyword = names(most_common_keywords), frequency = as.numeric(most_common_keywords))
   plot <- ggplot(top_keywords_df, aes(x = reorder(keyword, frequency), y = frequency, fill = keyword)) +
     geom_bar(stat = "identity") +
-    scale_fill_viridis_d(option = "magma") +  # Utiliser la palette "viridis"
+    scale_fill_viridis_d(option = "magma") +  
     labs(title = paste("Top 10 Mots-Clés pour le réalisateur", director_name),
          x = "Mots-Clés",
          y = "Fréquence") +
@@ -2128,7 +2128,7 @@ Attente : Bien que cette analyse ne soit pas très pertinente, nous cherchons à
     top_keywords <- head(d, 100)
     wordcloud(words = top_keywords$word, freq = top_keywords$freq, random.order = FALSE, rot.per = 0.3, 
               scale = c(4, 0.5), max.words = 100, colors = brewer.pal(8, "Dark2"))
-    mtext(paste("Nuage des mots-clés de", countries_name), side = 3, line = 4, font = 1, cex = 1.5)
+    mtext(paste("Nuage des mots-clés de", countries_name), side = 3, line = 3, font = 1, cex = 1.5)
   }
 ```
 
